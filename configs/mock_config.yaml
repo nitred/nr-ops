@@ -1,0 +1,19 @@
+app_version: "0.1.0"
+
+logging: {}
+
+connector_op: null
+
+schedule_op:
+  op_type: "ts.mock"
+  op_config: {}
+
+root_op:
+  op_type: "group.op_chain"
+  op_config:
+    ops:
+      - op_type: "generator.mock"
+        op_config: {}
+
+      - op_type: "consumer.mock"
+        op_config: {}

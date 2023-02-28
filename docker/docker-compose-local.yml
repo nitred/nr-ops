@@ -1,0 +1,208 @@
+version: "3"
+
+services:
+  nr-ops-airflow-postgres-s:
+    container_name: nr-ops-airflow-postgres-c
+    image: postgres:14
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    ports:
+      - "54321:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 1s
+      retries: 30
+    restart: always
+    networks:
+      nr-ops-network-n:
+        ipv4_address: 172.100.100.130
+
+  nr-ops-airflow-init-s:
+    image: apache/airflow:2.5.1-python3.9
+    container_name: nr-ops-airflow-init-c
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@nr-ops-airflow-postgres-s/airflow
+      AIRFLOW__CORE__FERNET_KEY: "${AIRFLOW__CORE__FERNET_KEY}"
+    user: "50000:0"
+    entrypoint: /bin/bash
+    # Init db
+    # Create users
+    # Create connections
+    command:
+      - -c
+      - |
+        echo 'initializing db...' &&
+        airflow db init &&
+        echo 'creating users...' &&
+
+        airflow users  create --role Admin --username admin --email admin --firstname admin --lastname admin --password admin &&
+
+        echo 'creating connections...' &&
+
+        airflow connections add dwh_postgres --conn-uri 'postgres://postgres:postgres@0.0.0.0:54322/${NR_OPS_DWH_POSTGRES_DB_NAME}' &&
+        airflow connections add dwh_mysql --conn-uri 'mysql+mysqldb://root:mysql@0.0.0.0:33061/${NR_OPS_DWH_MYSQL_DB_NAME}' &&
+        airflow connections add data_aws --conn-type aws --conn-login admin --conn-password admin123 --conn-extra '{"endpoint_url": "http://localhost:59000", "region_name": "${NR_OPS_AWS_REGION}"}' &&
+
+        echo 'done!'
+
+    depends_on:
+      - nr-ops-airflow-postgres-s
+    networks:
+      nr-ops-network-n:
+        ipv4_address: 172.100.100.132
+
+  nr-ops-airflow-web-s:
+    image: apache/airflow:2.5.1-python3.9
+    container_name: nr-ops-airflow-web-c
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@nr-ops-airflow-postgres-s/airflow
+      # DUMMY FERNET KEY - DO NOT USE IN PRODUCTION
+      AIRFLOW__CORE__FERNET_KEY: "${AIRFLOW__CORE__FERNET_KEY}"
+    user: "50000:0"
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - "
+        sleep 10 &&
+        airflow webserver --port 8080
+      "
+    depends_on:
+      - nr-ops-airflow-postgres-s
+    ports:
+      - 8081:8080
+    networks:
+      nr-ops-network-n:
+        ipv4_address: 172.100.100.134
+
+  # ------------------------------------------------------------------------------------
+  # A postgres datawarehouse
+  # ------------------------------------------------------------------------------------
+  nr-ops-dwh-postgres-s:
+    container_name: nr-ops-dwh-postgres-c
+    image: postgres:14
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "${NR_OPS_DWH_POSTGRES_DB_NAME}"
+    ports:
+      - "54322:5432"
+    healthcheck:
+      test: [
+        "CMD",
+        "pg_isready",
+        "-U",
+        "postgres"
+      ]
+      interval: 1s
+      retries: 30
+    restart: always
+    networks:
+      nr-ops-network-n:
+        ipv4_address: 172.100.100.136
+
+  nr-ops-dwh-postgres-cmds-s:
+    container_name: nr-ops-dwh-postgres-cmds-c
+    image: postgres:14
+    environment:
+      PGPASSWORD: "postgres"
+    entrypoint: "/bin/bash"
+    command:
+      - "-c"
+      - >
+        while ! (pg_isready -h nr-ops-dwh-postgres-s -p 5432 -U postgres -t 2);
+          do
+            echo 'waiting for postgres to become ready' &&
+            sleep 1;
+          done &&
+
+        psql -h nr-ops-dwh-postgres-s -U postgres -d ${NR_OPS_DWH_POSTGRES_DB_NAME}
+        -c 'CREATE SCHEMA IF NOT EXISTS raw'
+    networks:
+      nr-ops-network-n:
+        ipv4_address: 172.100.100.137
+
+  # ------------------------------------------------------------------------------------
+  # A mysql datawarehouse
+  # ------------------------------------------------------------------------------------
+  nr-ops-dwh-mysql-s:
+    container_name: nr-ops-dwh-mysql-c
+    image: mysql:5.7.41-debian
+    environment:
+      MYSQL_USER: "mysql"
+      MYSQL_PASSWORD: "mysql"
+      MYSQL_ROOT_PASSWORD: "mysql"
+      MYSQL_DATABASE: "${NR_OPS_DWH_MYSQL_DB_NAME}"
+    ports:
+      - "33061:3306"
+    healthcheck:
+      test: [
+        "CMD",
+        "/usr/bin/timeout",
+        "3",
+        "mysql",
+        "-u",
+        "mysql",
+        "--password=mysql",
+        "-e",
+        "SELECT VERSION()"
+      ]
+      interval: 3s
+      retries: 3
+    restart: always
+    networks:
+      nr-ops-network-n:
+        ipv4_address: 172.100.100.138
+
+  nr-ops-dwh-mysql-cmds-s:
+    container_name: nr-ops-dwh-mysql-cmds-c
+    image: mysql:5.7.41-debian
+    entrypoint: "/bin/bash"
+    command:
+      - "-c"
+      - >
+        while ! (/usr/bin/timeout 5 mysql -u root --password=mysql -h nr-ops-dwh-mysql-s -e 'SELECT VERSION()' );
+          do
+            echo 'waiting for mysql to become ready' &&
+            sleep 1;
+          done &&
+
+        echo 'running commands on mysql ${NR_OPS_DWH_MYSQL_DB_NAME}  db ....' &&
+
+        mysql -u root --password=mysql -h nr-ops-dwh-mysql-s
+        -e 'create database `${NR_OPS_DWH_MYSQL_DB_NAME}`;' &&
+
+        echo 'done running commands on mysql' &&
+
+        sleep 100
+
+    networks:
+      nr-ops-network-n:
+        ipv4_address: 172.100.100.139
+
+
+  nr-ops-minio-s:
+    container_name: nr-ops-minio-c
+    image: minio/minio:RELEASE.2021-02-14T04-01-33Z
+    environment:
+      - MINIO_ACCESS_KEY=admin
+      - MINIO_SECRET_KEY=admin123
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        mkdir -p /data/${NR_OPS_MINIO_BUCKET_NAME}-${ENVIRONMENT} &&
+        minio server /data
+    ports:
+      - "59000:9000"
+    restart: "always"
+    networks:
+      nr-ops-network-n:
+        ipv4_address: 172.100.100.140
+
+networks:
+  # docker network create --driver=bridge --subnet=172.100.100.128/25 nr-ops-network-n
+  nr-ops-network-n:
+    external:
+      name: nr-ops-network-n

@@ -1,0 +1,36 @@
+FROM python:3.9.16-slim-bullseye
+
+RUN apt update && \
+    apt install sudo -y && \
+    \
+    echo "Installing dependencies for mysqlclient" && \
+    apt install python3-dev default-libmysqlclient-dev build-essential -y && \
+    \
+	apt install -y \
+	g++ \
+	make \
+	cmake \
+	unzip \
+	libcurl4-openssl-dev && \
+    \
+    adduser --disabled-login --disabled-password --gecos "" appuser && \
+    echo "appuser ALL = NOPASSWD: ALL" >> /etc/sudoers && \
+    mkdir -p /home/appuser/ && \
+    mkdir -p /home/appuser/logs && \
+    chown -R appuser:appuser /home/appuser/
+
+WORKDIR /home/appuser
+
+ENV PATH=/home/appuser/.local/bin:$PATH
+
+COPY pyproject.toml poetry.lock /home/appuser/
+
+RUN pip install --no-cache-dir pip wheel poetry==1.1.15 && \
+    poetry export -f requirements.txt --without-hashes > requirements-tmp.txt && \
+    pip install --no-cache-dir -r requirements-tmp.txt
+
+COPY ./nr_ops /home/appuser/nr_ops
+
+RUN pip install --no-cache-dir --no-deps .
+
+USER appuser

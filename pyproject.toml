@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nr-ops"
-version = "0.1.0"
+version = "0.2.0"
 description = "An opinionated operator framework."
 authors = ["Nitish Reddy Koripalli <nitish.k.reddy@gmail.com>"]
 

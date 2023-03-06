@@ -23,6 +23,7 @@ class S3ListKeysOpConfigModel(BaseOpConfigModel):
     bucket: StrictStr
     prefix: StrictStr
     regex: Optional[StrictStr] = None
+    iterate_over_keys: bool = True
 
     @validator("prefix", pre=False)
     def validate_prefix(cls, prefix: str):
@@ -42,7 +43,7 @@ class S3ListKeysOpConfigModel(BaseOpConfigModel):
 class S3ListKeysOpMetadataModel(BaseOpMetadataModel):
     bucket: StrictStr
     prefix: StrictStr
-    key: StrictStr
+    key: Optional[StrictStr] = None
 
     class Config:
         extra = "forbid"
@@ -71,6 +72,7 @@ class S3ListKeysOp(BaseGeneratorOp):
         bucket: str,
         prefix: str,
         regex: Optional[str] = None,
+        iterate_over_keys: bool = True,
         **kwargs,
     ):
         """."""
@@ -78,6 +80,8 @@ class S3ListKeysOp(BaseGeneratorOp):
         self.bucket = bucket
         self.prefix = prefix
         self.regex = regex
+        self.iterate_over_keys = iterate_over_keys
+
         self.templated_fields = kwargs.get("templated_fields", [])
 
         op_manager = get_global_op_manager()
@@ -109,14 +113,28 @@ class S3ListKeysOp(BaseGeneratorOp):
                 f" {len(keys)=} matched with {self.regex=}. Sample keys: \n{keys[:5]}"
             )
 
-        for key in keys:
-            logger.info(f"S3ListKeysOp.run: Returning {key=}")
+        if self.iterate_over_keys:
+            for key in keys:
+                logger.info(f"S3ListKeysOp.run: Yielding {key=}")
+                yield OpMsg(
+                    data=key,
+                    metadata=S3ListKeysOpMetadataModel(
+                        bucket=self.bucket,
+                        prefix=self.prefix,
+                        key=key,
+                    ),
+                    audit=S3ListKeysOpAuditModel(),
+                )
+        else:
+            logger.info(
+                f"S3ListKeysOp.run: Yielding all keys of {len(keys)=} as output."
+            )
             yield OpMsg(
-                data=key,
+                data=keys,
                 metadata=S3ListKeysOpMetadataModel(
                     bucket=self.bucket,
                     prefix=self.prefix,
-                    key=key,
+                    key="",
                 ),
                 audit=S3ListKeysOpAuditModel(),
             )

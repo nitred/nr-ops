@@ -19,6 +19,7 @@ from nr_ops.ops.ops.connector_ops.hooks.gcp_service_account_from_file import (
 from nr_ops.ops.ops.connector_ops.hooks.http_requests_from_env import (
     HTTPRequestsHookFromEnvConnOp,
 )
+from nr_ops.ops.ops.connector_ops.hooks.python_list import PythonListHookConnOp
 
 # --------------------------------------------------------------------------------------
 # connector_ops (Interfaces)
@@ -30,6 +31,7 @@ from nr_ops.ops.ops.connector_ops.interfaces.google_analytics_ga4 import (
     GoogleAnalyticsGA4ConnOp,
 )
 from nr_ops.ops.ops.connector_ops.interfaces.http import HTTPConnOp
+from nr_ops.ops.ops.connector_ops.interfaces.list import ListConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.mysql import MysqlConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.postgres import PostgresConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.s3 import S3ConnOp
@@ -39,8 +41,13 @@ from nr_ops.ops.ops.connector_ops.interfaces.s3 import S3ConnOp
 # --------------------------------------------------------------------------------------
 from nr_ops.ops.ops.consumer_ops.mock import MockConsumerOp
 from nr_ops.ops.ops.consumer_ops.pangres.df_to_sql_db import PangresDFToSQLDBOp
+from nr_ops.ops.ops.consumer_ops.put_list import PutListConsumerOp
 from nr_ops.ops.ops.consumer_ops.s3.put_key import S3PutKeyOp
 from nr_ops.ops.ops.consumer_ops.sql_query import SQLQueryConsumerOp
+
+# --------------------------------------------------------------------------------------
+# generator_ops
+# --------------------------------------------------------------------------------------
 from nr_ops.ops.ops.generator_ops.blade.get_token import BladeGetTokenOp
 from nr_ops.ops.ops.generator_ops.blade.orders_list_goodsout import (
     BladeOrdersListGoodsoutOp,
@@ -54,16 +61,19 @@ from nr_ops.ops.ops.generator_ops.blade.orders_list_tracking_numbers import (
 from nr_ops.ops.ops.generator_ops.blade.orders_view_goodsout import (
     BladeOrdersViewGoodsoutOp,
 )
+from nr_ops.ops.ops.generator_ops.blade.products_list_variations import (
+    BladeProductsListVariationsOp,
+)
+from nr_ops.ops.ops.generator_ops.blade.products_view_variation import (
+    BladeProductsViewVariationOp,
+)
 from nr_ops.ops.ops.generator_ops.compression.compress import CompressOp
 from nr_ops.ops.ops.generator_ops.compression.decompress import DecompressOp
-
-# --------------------------------------------------------------------------------------
-# generator_ops
-# --------------------------------------------------------------------------------------
 from nr_ops.ops.ops.generator_ops.eval_expr.eval_expr import EvalExprOp
 from nr_ops.ops.ops.generator_ops.eval_expr.eval_expr_as_metadata import (
     EvalExprAsMetadataOp,
 )
+from nr_ops.ops.ops.generator_ops.get_list import GetListGeneratorOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports import GetGAReportsOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports_ga4 import GetGAReportsGA4Op
 from nr_ops.ops.ops.generator_ops.mock import MockGeneratorOp
@@ -94,6 +104,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     GCPServiceAccountFromFileConnOp,
     AirflowS3HookConnOp,
     HTTPRequestsHookFromEnvConnOp,
+    PythonListHookConnOp,
     # connector_ops (Interfaces)
     GoogleAnalyticsConnOp,
     GoogleAnalyticsGA4ConnOp,
@@ -101,11 +112,13 @@ OP_CLASSES: List[Type[BaseOp]] = [
     MysqlConnOp,
     S3ConnOp,
     HTTPConnOp,
+    ListConnOp,
     # consumer_ops
     MockConsumerOp,
     PangresDFToSQLDBOp,
     SQLQueryConsumerOp,
     S3PutKeyOp,
+    PutListConsumerOp,
     # generator_ops
     EvalExprOp,
     EvalExprAsMetadataOp,
@@ -122,6 +135,9 @@ OP_CLASSES: List[Type[BaseOp]] = [
     BladeOrdersViewGoodsoutOp,
     BladeOrdersListMetadataOp,
     BladeOrdersBulkListTrackingNumbersOp,
+    BladeProductsListVariationsOp,
+    BladeProductsViewVariationOp,
+    GetListGeneratorOp,
     # group_ops (Groups)
     OpChainGroupOp,
     OpSetGroupOp,

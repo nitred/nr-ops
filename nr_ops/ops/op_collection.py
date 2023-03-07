@@ -80,6 +80,9 @@ from nr_ops.ops.ops.generator_ops.mock import MockGeneratorOp
 from nr_ops.ops.ops.generator_ops.s3.get_key import S3GetKeyOp
 from nr_ops.ops.ops.generator_ops.s3.list_keys import S3ListKeysOp
 from nr_ops.ops.ops.generator_ops.sleep import SleepGeneratorOp
+from nr_ops.ops.ops.generator_ops.eval_expr.eval_expr_conditional import (
+    EvalExprConditionalOp,
+)
 
 # --------------------------------------------------------------------------------------
 # group_ops (Groups)
@@ -122,6 +125,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     # generator_ops
     EvalExprOp,
     EvalExprAsMetadataOp,
+    EvalExprConditionalOp,
     GetGAReportsOp,
     GetGAReportsGA4Op,
     MockGeneratorOp,

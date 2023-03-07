@@ -2,16 +2,20 @@ import collections
 import datetime
 import itertools
 import json
+import logging
 import math as math
 import pathlib
 import pickle
 import random
+import time
 import uuid
 from functools import partial
 
 import numpy as np
 import pandas as pd
 import requests
+
+logger = logging.getLogger(__name__)
 
 EVAL_GLOBALS = {
     "random": random,
@@ -27,4 +31,6 @@ EVAL_GLOBALS = {
     "json": json,
     "itertools": itertools,
     "requests": requests,
+    "logger": logger,
+    "time": time,
 }

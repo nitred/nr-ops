@@ -21,6 +21,14 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.3.0 (2023-03-07)
+* **New Ops**
+  * Generators
+    * `EvalExprConditionalOp`
+* **Non-breaking Changes**
+  * Added `time` and `logger` to the EVAL_GLOBALS
+
+
 # Release 0.2.0 (2023-03-06)
 * **New Ops**
   * Connector Hooks

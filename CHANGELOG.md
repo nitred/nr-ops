@@ -20,6 +20,9 @@ We follow semantic versioning.
 * **Notes from future**
   * ...
 ```
+# Release 0.3.1 (2023-03-07)
+* **Breaking Changes**
+  * Bugfix/Improvement: Improved backoff in HTTPConnOp. `backoff_config: {}` must be added to config file to enable backoff with default values.
 
 # Release 0.3.0 (2023-03-07)
 * **New Ops**
@@ -27,7 +30,6 @@ We follow semantic versioning.
     * `EvalExprConditionalOp`
 * **Non-breaking Changes**
   * Added `time` and `logger` to the EVAL_GLOBALS
-
 
 # Release 0.2.0 (2023-03-06)
 * **New Ops**

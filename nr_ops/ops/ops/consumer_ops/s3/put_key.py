@@ -86,9 +86,7 @@ class S3PutKeyOp(BaseConsumerOp):
 
         op_manager = get_global_op_manager()
 
-        self.s3_conn: S3ConnOp = op_manager.connector.get_connector(
-            op_id=self.s3_conn_id
-        )
+        self.s3_conn: S3ConnOp = op_manager.get_connector(op_id=self.s3_conn_id)
 
     def run(self, time_step: TimeStep, msg: Optional[OpMsg] = None) -> OpMsg:
         """."""

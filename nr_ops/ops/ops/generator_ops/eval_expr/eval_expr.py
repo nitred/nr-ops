@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 class EvalExprOpConfigModel(BaseOpConfigModel):
     expr: StrictStr
+    metadata_expr: Optional[StrictStr] = None
     msg_var_name: Optional[StrictStr] = None
     time_step_var_name: Optional[StrictStr] = None
     op_manager_var_name: Optional[StrictStr] = None
@@ -30,7 +31,7 @@ class EvalExprOpConfigModel(BaseOpConfigModel):
 
 
 class EvalExprOpMetadataModel(BaseOpMetadataModel):
-    pass
+    output_metadata: Optional[Dict[str, Any]]
 
     class Config:
         extra = "forbid"
@@ -56,6 +57,7 @@ class EvalExprOp(BaseGeneratorOp):
     def __init__(
         self,
         expr: str,
+        metadata_expr: Optional[str] = None,
         msg_var_name: Optional[str] = None,
         time_step_var_name: Optional[str] = None,
         op_manager_var_name: Optional[str] = None,
@@ -64,6 +66,7 @@ class EvalExprOp(BaseGeneratorOp):
         **kwargs,
     ):
         self.expr = expr
+        self.metadata_expr = metadata_expr
         self.msg_var_name = "msg" if msg_var_name is None else msg_var_name
         self.time_step_var_name = (
             "time_step" if time_step_var_name is None else time_step_var_name
@@ -109,6 +112,28 @@ class EvalExprOp(BaseGeneratorOp):
         if self.log_output:
             logger.info(f"EvalExprOp.run: Logging output:\n{output=}")
 
+        if self.metadata_expr:
+            output_metadata = eval(
+                self.metadata_expr,
+                {
+                    **EVAL_GLOBALS,
+                    self.msg_var_name: msg,
+                    self.time_step_var_name: time_step,
+                    self.op_manager_var_name: self.op_manager,
+                },
+            )
+            logger.info(
+                f"EvalExprOp.run: Evaluated metadata expression: "
+                f"{type(output_metadata)=}"
+            )
+            if not isinstance(output_metadata, dict):
+                raise ValueError(
+                    f"EvalExprOp.run: Expected metadata_expr to evaluate to a dict, "
+                    f"but got {type(output_metadata)=}"
+                )
+        else:
+            output_metadata = None
+
         if self.iterate_over_output:
             logger.info(f"EvalExprOp.run: Iterating over output of {type(output)=}")
 
@@ -119,13 +144,13 @@ class EvalExprOp(BaseGeneratorOp):
                 )
                 yield OpMsg(
                     data=item,
-                    metadata=EvalExprOpMetadataModel(),
+                    metadata=EvalExprOpMetadataModel(output_metadata=output_metadata),
                     audit=EvalExprOpAuditModel(),
                 )
         else:
             logger.info(f"EvalExprOp.run: Yielding output of {type(output)=}")
             yield OpMsg(
                 data=output,
-                metadata=EvalExprOpMetadataModel(),
+                metadata=EvalExprOpMetadataModel(output_metadata=output_metadata),
                 audit=EvalExprOpAuditModel(),
             )

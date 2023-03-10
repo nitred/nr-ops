@@ -80,9 +80,7 @@ class BladeGetTokenOp(BaseGeneratorOp):
 
         op_manager = get_global_op_manager()
 
-        self.http_conn: HTTPConnOp = op_manager.connector.get_connector(
-            op_id=self.http_conn_id
-        )
+        self.http_conn: HTTPConnOp = op_manager.get_connector(op_id=self.http_conn_id)
 
         # Loaded in run
         self.auth_model: Optional[BladeGetTokenResponseModel] = None

@@ -28,7 +28,7 @@ class OpChainGroupOpConfigModel(BaseOpConfigModel):
 
 
 class OpChainGroupOpMetadataModel(BaseOpMetadataModel):
-    pass
+    output_metadata: BaseOpMetadataModel
 
     class Config:
         extra = "forbid"
@@ -36,7 +36,7 @@ class OpChainGroupOpMetadataModel(BaseOpMetadataModel):
 
 
 class OpChainGroupOpAuditModel(BaseOpAuditModel):
-    pass
+    output_audit: BaseOpAuditModel
 
     class Config:
         extra = "forbid"
@@ -77,7 +77,7 @@ class OpChainGroupOp(BaseGroupOp):
         logger.info(f"OpChainGroupOp.run: Running")
         # Convert a single message into a generator of messages.
         # This is just to treat all messages as if they came from a generator.
-        msgs = (_msg for _msg in [msg])
+        msgs = (_msg for _msg in [msg])  # type: Generator[Optional[OpMsg], None, None]
 
         for op in self.ops:
             # Create a chain of generators.
@@ -89,5 +89,13 @@ class OpChainGroupOp(BaseGroupOp):
         # The final generator is the generator of this op_group.
         final_msgs = msgs
 
-        for output_msg in final_msgs:
-            yield output_msg
+        for output_msg_i, output_msg in enumerate(final_msgs):
+            logger.info(
+                f"OpChainGroupOp.run: Yielding output_msg from op_chain | "
+                f"{output_msg_i=} | {type(output_msg.data)=}"
+            )
+            yield OpMsg(
+                data=output_msg.data,
+                metadata=output_msg.metadata,
+                audit=output_msg.audit,
+            )

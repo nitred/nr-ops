@@ -73,21 +73,23 @@ from nr_ops.ops.ops.generator_ops.eval_expr.eval_expr import EvalExprOp
 from nr_ops.ops.ops.generator_ops.eval_expr.eval_expr_as_metadata import (
     EvalExprAsMetadataOp,
 )
+from nr_ops.ops.ops.generator_ops.eval_expr.eval_expr_conditional import (
+    EvalExprConditionalOp,
+)
 from nr_ops.ops.ops.generator_ops.get_list import GetListGeneratorOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports import GetGAReportsOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports_ga4 import GetGAReportsGA4Op
 from nr_ops.ops.ops.generator_ops.mock import MockGeneratorOp
+from nr_ops.ops.ops.generator_ops.pandas.read_generic import PandasReadGenericOp
 from nr_ops.ops.ops.generator_ops.s3.get_key import S3GetKeyOp
 from nr_ops.ops.ops.generator_ops.s3.list_keys import S3ListKeysOp
 from nr_ops.ops.ops.generator_ops.sleep import SleepGeneratorOp
-from nr_ops.ops.ops.generator_ops.eval_expr.eval_expr_conditional import (
-    EvalExprConditionalOp,
-)
 
 # --------------------------------------------------------------------------------------
 # group_ops (Groups)
 # --------------------------------------------------------------------------------------
 from nr_ops.ops.ops.group_ops.op_chain import OpChainGroupOp
+from nr_ops.ops.ops.group_ops.op_fan_in import OpFanInGroupOp
 from nr_ops.ops.ops.group_ops.op_set import OpSetGroupOp
 from nr_ops.ops.ops.time_step_ops.date_range import DateRangeTimeStepOp
 
@@ -142,9 +144,11 @@ OP_CLASSES: List[Type[BaseOp]] = [
     BladeProductsListVariationsOp,
     BladeProductsViewVariationOp,
     GetListGeneratorOp,
+    PandasReadGenericOp,
     # group_ops (Groups)
     OpChainGroupOp,
     OpSetGroupOp,
+    OpFanInGroupOp,
     # time_step_ops (TimeSteps)
     MockTimeStepOp,
     SimpleTimeStepOp,

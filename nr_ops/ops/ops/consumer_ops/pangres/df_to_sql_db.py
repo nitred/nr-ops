@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict, Generator, List, Literal, Optional, Union
 
 import pangres as pg
-from pydantic import BaseModel, StrictInt, StrictStr, conlist
+from pydantic import BaseModel, StrictBool, StrictInt, StrictStr, conlist
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
@@ -25,6 +25,10 @@ class UpsertConfigModel(BaseModel):
     schema_: StrictStr
     if_row_exists: Literal["ignore", "update"]
     dtype: Optional[Dict[StrictStr, StrictStr]] = None
+    create_schema: StrictBool = False
+    create_table: StrictBool = False
+    add_new_columns: StrictBool = False
+    chunksize: Optional[StrictInt] = None
 
     class Config:
         extra = "forbid"
@@ -79,7 +83,7 @@ class PangresDFToSQLDBOp(BaseConsumerOp):
 
         op_manager = get_global_op_manager()
 
-        self.postgres: PostgresConnOp = op_manager.connector.get_connector(
+        self.postgres: PostgresConnOp = op_manager.get_connector(
             op_id=self.postgres_conn_id
         )
 
@@ -103,11 +107,11 @@ class PangresDFToSQLDBOp(BaseConsumerOp):
         pg.upsert(
             con=self.postgres.get_engine(),
             df=msg.data,
-            create_schema=False,
-            create_table=False,
-            add_new_columns=False,
+            create_schema=self.upsert_config.get("create_schema", False),
+            create_table=self.upsert_config.get("create_table", False),
+            add_new_columns=self.upsert_config.get("add_new_columns", False),
             adapt_dtype_of_empty_db_columns=False,
-            chunksize=None,
+            chunksize=self.upsert_config.get("chunksize", None),
             yield_chunks=False,
             table_name=self.upsert_config.get("table_name"),
             schema=self.upsert_config.get("schema"),

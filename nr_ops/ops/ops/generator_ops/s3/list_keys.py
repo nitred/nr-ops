@@ -44,6 +44,8 @@ class S3ListKeysOpMetadataModel(BaseOpMetadataModel):
     bucket: StrictStr
     prefix: StrictStr
     key: Optional[StrictStr] = None
+    keys: Optional[List[StrictStr]] = None
+    filename: Optional[StrictStr] = None
 
     class Config:
         extra = "forbid"
@@ -86,9 +88,7 @@ class S3ListKeysOp(BaseGeneratorOp):
 
         op_manager = get_global_op_manager()
 
-        self.s3_conn: S3ConnOp = op_manager.connector.get_connector(
-            op_id=self.s3_conn_id
-        )
+        self.s3_conn: S3ConnOp = op_manager.get_connector(op_id=self.s3_conn_id)
 
     def run(
         self, time_step: TimeStep, msg: Optional[OpMsg] = None
@@ -115,13 +115,16 @@ class S3ListKeysOp(BaseGeneratorOp):
 
         if self.iterate_over_keys:
             for key in keys:
-                logger.info(f"S3ListKeysOp.run: Yielding {key=}")
+                filename = key[len(self.prefix) :]
+                logger.info(f"S3ListKeysOp.run: Yielding {key=}, {filename=}")
                 yield OpMsg(
                     data=key,
                     metadata=S3ListKeysOpMetadataModel(
                         bucket=self.bucket,
                         prefix=self.prefix,
+                        keys=None,
                         key=key,
+                        filename=filename,
                     ),
                     audit=S3ListKeysOpAuditModel(),
                 )
@@ -134,7 +137,9 @@ class S3ListKeysOp(BaseGeneratorOp):
                 metadata=S3ListKeysOpMetadataModel(
                     bucket=self.bucket,
                     prefix=self.prefix,
-                    key="",
+                    keys=keys,
+                    key=None,
+                    filename=None,
                 ),
                 audit=S3ListKeysOpAuditModel(),
             )

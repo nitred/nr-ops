@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
 from nr_ops.messages.op_msg import OpMsg
-from nr_ops.ops.base import BaseOp
+from nr_ops.ops.base import BaseConnectorOp, BaseOp
 from nr_ops.ops.op import Op
 
 logger = logging.getLogger(__name__)
@@ -16,9 +16,9 @@ class OpManager(object):
         # Currently it seems appropriate to store the environment variables in the
         # op_manager and not withing OpSubManager.
         self._env_vars = {}
-        self.op_submanager = OpSubManager()
-        self.connector_submanager = OpSubManager()
-        self.generator_submanager = OpSubManager()
+        self.__ops = {}
+        self.__metadata = {}
+        self.__data = {}
 
     def import_env_vars(self, env_vars: Optional[List[str]] = None):
         """Store environment variables from os.env."""
@@ -40,71 +40,44 @@ class OpManager(object):
         return self._env_vars
 
     @property
-    def op(self):
-        return self.op_submanager
+    def metadata(self):
+        return self.__metadata
 
     @property
-    def connector(self):
-        return self.connector_submanager
+    def data(self):
+        return self.__data
 
     @property
-    def generator(self):
-        return self.generator_submanager
-
-
-class OpSubManager(object):
-    def __init__(self):
-        self.op_store = {}
-        self.data_store = {}
-        self.metadata_store = {}
-
-    def store_op(self, op: Op):
-        if op.op_id is None:
-            # NOT registering op with op_id=None
-            return
-
-        self.op_store[op.op_id] = op
-
-    def store_data(self, op: Op, msg: OpMsg):
-        if op.op_id is None:
-            raise NotImplementedError()
-        self.data_store[op.op_id] = msg.data
+    def ops(self):
+        return self.__ops
 
     def store_metadata(self, op: Op, msg: OpMsg):
         if op.op_id is None:
             # NOT registering op with op_id=None
             return
-        self.metadata_store[op.op_id] = msg.metadata
+        self.__metadata[op.op_id] = msg.metadata
 
-    def store_audit(self, op: Op, msg: OpMsg):
-        pass
+    def store_data(self, op: Op, msg: OpMsg):
+        if op.op_id is None:
+            # NOT registering op with op_id=None
+            return
+        self.__data[op.op_id] = msg.data
 
-    ####################################################################################
-    # get_data
-    ####################################################################################
-    def get_data(self, op_id: str) -> Any:
-        if op_id is None:
-            raise NotImplementedError()
-        return self.data_store[op_id]
+    def store_op(self, op: Op):
+        if op.op_id is None:
+            # NOT registering op with op_id=None
+            return
+        self.__ops[op.op_id] = op
 
     # Alias
-    get_connector = get_data
-
-    ####################################################################################
-    # get_metadata
-    ####################################################################################
-    def get_metadata(self, op_id: str) -> BaseOpMetadataModel:
-        if op_id is None:
-            raise NotImplementedError()
-        return self.metadata_store[op_id]
-
-    ####################################################################################
-    # get_op
-    ####################################################################################
-    def get_op(self, op_id: str) -> Op:
-        if op_id is None:
-            raise NotImplementedError()
-        return self.op_store[op_id]
+    def get_connector(self, op_id: str) -> BaseConnectorOp:
+        conn_op = self.__data[op_id]
+        if not isinstance(conn_op, BaseConnectorOp):
+            raise ValueError(
+                f"Expected {op_id=} to be of type BaseConnectorOp instead "
+                f"received {type(conn_op)=}."
+            )
+        return self.__data[op_id]
 
 
 GLOBAL_OP_MANAGERS: Optional[OpManager] = None

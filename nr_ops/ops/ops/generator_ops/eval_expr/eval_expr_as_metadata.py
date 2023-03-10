@@ -29,7 +29,7 @@ class EvalExprAsMetadataOpConfigModel(BaseOpConfigModel):
 
 
 class EvalExprAsMetadataOpMetadataModel(BaseOpMetadataModel):
-    output: Any
+    output_metadata: Any
 
     class Config:
         extra = "forbid"
@@ -119,6 +119,6 @@ class EvalExprAsMetadataOp(BaseGeneratorOp):
         # Store output as metadata.
         yield OpMsg(
             data=msg.data,
-            metadata=EvalExprAsMetadataOpMetadataModel(output=output),
+            metadata=EvalExprAsMetadataOpMetadataModel(output_metadata=output),
             audit=EvalExprAsMetadataOpAuditModel(),
         )

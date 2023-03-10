@@ -54,7 +54,7 @@ class PutListConsumerOp(BaseConsumerOp):
 
         op_manager = get_global_op_manager()
 
-        self.list_conn: Union[ListConnOp] = op_manager.connector.get_connector(
+        self.list_conn: Union[ListConnOp] = op_manager.get_connector(
             op_id=self.list_conn_id
         )
 

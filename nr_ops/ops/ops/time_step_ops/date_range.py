@@ -56,7 +56,7 @@ class DateRangeTimeStepOp(BaseTimeStepOp):
         end: str,
         freq: str,
         tz: str,
-        inclusive: str,
+        inclusive: Literal["both", "neither", "left", "right"],
         metadata: Optional[Dict[str, Any]] = None,
         **kwargs,
     ):
@@ -65,7 +65,7 @@ class DateRangeTimeStepOp(BaseTimeStepOp):
         self.freq = freq
         self.tz = tz
         self.inclusive = inclusive
-        self.metadata = metadata
+        self.metadata = {} if metadata is None else metadata
 
         self.templated_fields = kwargs.get("templated_fields", [])
 

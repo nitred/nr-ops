@@ -53,7 +53,7 @@ class SimpleTimeStepOp(BaseTimeStepOp):
         start: str,
         end: str,
         tz: str,
-        metadata: Optional[Dict[str, Any]],
+        metadata: Optional[Dict[str, Any]] = None,
         **kwargs,
     ):
         self.start = start

@@ -54,7 +54,7 @@ class SQLQueryConsumerOp(BaseConsumerOp):
 
         op_manager = get_global_op_manager()
 
-        self.db: Union[PostgresConnOp] = op_manager.connector.get_connector(
+        self.db: Union[PostgresConnOp] = op_manager.get_connector(
             op_id=self.sql_conn_id
         )
 

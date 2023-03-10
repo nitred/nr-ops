@@ -83,7 +83,7 @@ class GetGAReportsGA4Op(BaseGeneratorOp):
 
         op_manager = get_global_op_manager()
 
-        self.analytics: GoogleAnalyticsGA4ConnOp = op_manager.connector.get_connector(
+        self.analytics: GoogleAnalyticsGA4ConnOp = op_manager.get_connector(
             op_id=self.google_analytics_conn_id
         )
 

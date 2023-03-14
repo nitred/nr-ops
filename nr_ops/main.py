@@ -3,11 +3,13 @@ import base64
 import logging
 import traceback
 from logging.config import dictConfig
+from typing import Optional
 
 import ruamel.yaml
 
 from nr_ops.config.main_config import MainConfigModel
 from nr_ops.messages.op_depth import BaseOpDepthModel
+from nr_ops.messages.op_msg import OpMsg
 from nr_ops.ops.op import Op
 from nr_ops.ops.op_manager import init_global_op_manager
 from nr_ops.utils.logging.dict_config import LoggingDictConfigModel
@@ -15,7 +17,11 @@ from nr_ops.utils.logging.dict_config import LoggingDictConfigModel
 logger = logging.getLogger(__name__)
 
 
-def core(config, return_generator: bool = False):
+def core(
+    config,
+    return_generator: bool = False,
+    root_msg: Optional[OpMsg] = None,
+):
     """Run core logic after logging has been initialized."""
 
     # Validate config
@@ -64,9 +70,17 @@ def core(config, return_generator: bool = False):
         if return_generator:
             # This can be used by a server to collect the results (if there's any
             # results)
-            return root_op.run(depth=root_depth, time_step=time_step, msg=None)
+            return root_op.run(
+                depth=root_depth,
+                time_step=time_step,
+                msg=root_msg,
+            )
         else:
-            for _msg in root_op.run(depth=root_depth, time_step=time_step, msg=None):
+            for _msg in root_op.run(
+                depth=root_depth,
+                time_step=time_step,
+                msg=root_msg,
+            ):
                 # This exhausts the generator of `root_op` which is the core behavior
                 # of nr-ops CLI.
                 pass

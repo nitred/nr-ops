@@ -1,6 +1,6 @@
 import logging
 from io import StringIO
-from typing import Any, Dict, Generator, Literal, Optional
+from typing import Any, Generator, Literal, Optional
 
 import numpy as np
 import pandas as pd
@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 class EvalExprConditionalOpConfigModel(BaseOpConfigModel):
     conditional_expr: StrictStr
-    on_true_behavior: Literal["yield_input", "yield_output"]
-    on_false_behavior: Literal["yield_input", "consume"]
+    on_true_behavior: Literal["yield_input", "yield_output", "consume"]
+    on_false_behavior: Literal["yield_input", "yield_output", "consume"]
     expr: StrictStr
     msg_var_name: Optional[StrictStr] = None
     time_step_var_name: Optional[StrictStr] = None
@@ -91,6 +91,81 @@ class EvalExprConditionalOp(BaseGeneratorOp):
 
         self.op_manager = get_global_op_manager()
 
+    def eval_output(self, time_step: TimeStep, msg: OpMsg):
+        """."""
+        output = eval(
+            self.expr,
+            {
+                **EVAL_GLOBALS,
+                self.msg_var_name: msg,
+                self.time_step_var_name: time_step,
+                self.op_manager_var_name: self.op_manager,
+            },
+        )
+
+        logger.info(
+            f"EvalExprConditionalOp.run: Evaluated output expression: "
+            f"{type(output)=}"
+        )
+
+        # Special logging for pandas DataFrames
+        if isinstance(output, pd.DataFrame):
+            buf = StringIO()
+            output.info(buf=buf)
+            buf.seek(0)
+            logger.info(f"EvalExprConditionalOp.run: DataFrame info:\n{buf.read()}")
+
+        if self.log_output:
+            logger.info(f"EvalExprConditionalOp.run: Logging output:\n{output=}")
+
+        return output
+
+    def behavior_consume(self):
+        """."""
+        logger.info(
+            f"EvalExprConditionalOp.run: "
+            f"Consuming and returning i.e. stopping the generator."
+        )
+        return
+
+    def behavior_yield_input(self, input_msg: OpMsg):
+        """."""
+        logger.info(f"EvalExprConditionalOp.run: Yielding input msg")
+        yield OpMsg(
+            data=input_msg.data,
+            metadata=EvalExprConditionalOpMetadataModel(),
+            audit=EvalExprConditionalOpAuditModel(),
+        )
+
+    def behavior_yield_output(self, output: Any):
+        """."""
+        if self.iterate_over_output:
+            logger.info(
+                f"EvalExprConditionalOp.run: Iterating over output of "
+                f"{type(output)=} and yielding items"
+            )
+
+            for item_i, item in enumerate(output):
+                logger.info(
+                    f"EvalExprConditionalOp.run: "
+                    f"Iterating over output of {type(output)=}, "
+                    f"yielding {item_i=} of {type(item)=}"
+                )
+                yield OpMsg(
+                    data=item,
+                    metadata=EvalExprConditionalOpMetadataModel(),
+                    audit=EvalExprConditionalOpAuditModel(),
+                )
+        else:
+            logger.info(
+                f"EvalExprConditionalOp.run: Yielding output of {type(output)=}"
+            )
+            yield OpMsg(
+                data=output,
+                metadata=EvalExprConditionalOpMetadataModel(),
+                audit=EvalExprConditionalOpAuditModel(),
+            )
+
     def run(
         self, time_step: TimeStep, msg: Optional[OpMsg] = None
     ) -> Generator[OpMsg, None, None]:
@@ -132,89 +207,30 @@ class EvalExprConditionalOp(BaseGeneratorOp):
         )
 
         if conditional_output is True:
-            # Evaluate expression only if conditional output is True
-            output = eval(
-                self.expr,
-                {
-                    **EVAL_GLOBALS,
-                    self.msg_var_name: msg,
-                    self.time_step_var_name: time_step,
-                    self.op_manager_var_name: self.op_manager,
-                },
-            )
-
             logger.info(
-                f"EvalExprConditionalOp.run: Evaluated output expression: "
-                f"{type(output)=}"
+                f"EvalExprConditionalOp.run: {conditional_output=}. "
+                f"Executing {self.on_true_behavior=}."
             )
-
-            # Special logging for pandas DataFrames
-            if isinstance(output, pd.DataFrame):
-                buf = StringIO()
-                output.info(buf=buf)
-                buf.seek(0)
-                logger.info(f"EvalExprConditionalOp.run: DataFrame info:\n{buf.read()}")
-
-            if self.log_output:
-                logger.info(f"EvalExprConditionalOp.run: Logging output:\n{output=}")
-
-            if self.on_true_behavior == "yield_output":
-                if self.iterate_over_output:
-                    logger.info(
-                        f"EvalExprConditionalOp.run: {self.on_true_behavior=}. "
-                        f"Iterating over output of {type(output)=} and yielding items"
-                    )
-
-                    for item_i, item in enumerate(output):
-                        logger.info(
-                            f"EvalExprConditionalOp.run: "
-                            f"Iterating over output of {type(output)=}, "
-                            f"yielding {item_i=} of {type(item)=}"
-                        )
-                        yield OpMsg(
-                            data=item,
-                            metadata=EvalExprConditionalOpMetadataModel(),
-                            audit=EvalExprConditionalOpAuditModel(),
-                        )
-                else:
-                    logger.info(
-                        f"EvalExprConditionalOp.run: {self.on_true_behavior=}. "
-                        f"Yielding output of {type(output)=}"
-                    )
-                    yield OpMsg(
-                        data=output,
-                        metadata=EvalExprConditionalOpMetadataModel(),
-                        audit=EvalExprConditionalOpAuditModel(),
-                    )
+            if self.on_true_behavior == "consume":
+                return self.behavior_consume()
             elif self.on_true_behavior == "yield_input":
-                logger.info(
-                    f"EvalExprConditionalOp.run: {self.on_true_behavior=}. "
-                    f"Yielding input data of {type(msg.data)=}"
-                )
-                yield OpMsg(
-                    data=msg.data,
-                    metadata=EvalExprConditionalOpMetadataModel(),
-                    audit=EvalExprConditionalOpAuditModel(),
-                )
+                yield from self.behavior_yield_input(msg)
+            elif self.on_true_behavior == "yield_output":
+                output = self.eval_output(time_step, msg)
+                yield from self.behavior_yield_output(output)
             else:
                 raise NotImplementedError()
         else:
-            # conditional_output is False
-            if self.on_false_behavior == "yield_input":
-                logger.info(
-                    f"EvalExprConditionalOp.run: {self.on_false_behavior=}. "
-                    f"Yielding input data of {type(msg.data)=}"
-                )
-                yield OpMsg(
-                    data=msg.data,
-                    metadata=EvalExprConditionalOpMetadataModel(),
-                    audit=EvalExprConditionalOpAuditModel(),
-                )
-            elif self.on_false_behavior == "consume":
-                logger.info(
-                    f"EvalExprConditionalOp.run: {self.on_false_behavior=}. "
-                    f"Consuming and returning i.e. stopping the generator."
-                )
-                return
+            logger.info(
+                f"EvalExprConditionalOp.run: {conditional_output=}. "
+                f"Executing {self.on_false_behavior=}."
+            )
+            if self.on_false_behavior == "consume":
+                return self.behavior_consume()
+            elif self.on_false_behavior == "yield_input":
+                yield from self.behavior_yield_input(msg)
+            elif self.on_false_behavior == "yield_output":
+                output = self.eval_output(time_step, msg)
+                yield from self.behavior_yield_output(output)
             else:
                 raise NotImplementedError()

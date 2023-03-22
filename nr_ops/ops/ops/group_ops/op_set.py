@@ -4,7 +4,6 @@ from typing import Generator, List, Optional
 from pydantic import conlist
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
-from nr_ops.messages.op_depth import BaseOpDepthModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
 from nr_ops.messages.op_msg import OpMsg
 from nr_ops.messages.time_step import TimeStep
@@ -55,7 +54,7 @@ class OpSetGroupOp(BaseGroupOp):
         self.ops = [Op(**op) for op in ops]
 
     def run(
-        self, depth: BaseOpDepthModel, time_step: TimeStep, msg: Optional[OpMsg] = None
+        self, time_step: TimeStep, msg: Optional[OpMsg] = None
     ) -> Generator[Optional[OpMsg], None, None]:
         """."""
         logger.info(f"OpSetGroupOp.run: Running")
@@ -64,21 +63,17 @@ class OpSetGroupOp(BaseGroupOp):
         for op_i, op in enumerate(self.ops):
             # Exhaust each op generator.
             logger.info(
-                f"OpSetGroupOp.run: Iterating over "
+                f"OpSetGroupOp.run: Iterating over Ops, current Op "
                 f"{op_i + 1}/{n_ops} (1-index) | {op.op_type=} | {op.op_id=}"
             )
-            for output_msg_i, output_msg in enumerate(op.run(depth, time_step, msg)):
+            for output_msg_i, output_msg in enumerate(op.run(time_step, msg)):
                 logger.info(
-                    f"OpSetGroupOp.run: Consuming (not yielding) output_msg from "
+                    f"OpSetGroupOp.run: Consuming (not yielding) output_msg from Op "
                     f"{op_i + 1}/{n_ops} (1-index) | {op.op_type=} | {op.op_id=} | "
                     f"{output_msg_i} | {type(output_msg.data)=}"
                 )
                 pass
 
         # Yield original message to keep the chain going.
-        logger.info(f"OpSetGroupOp.run: Yielding original input message.")
-        yield OpMsg(
-            data=msg.data,
-            metadata=msg.metadata,
-            audit=msg.audit,
-        )
+        logger.info(f"OpSetGroupOp.run: Yielding original input message {type(msg)=}.")
+        yield msg

@@ -41,10 +41,10 @@ services:
 
         echo 'creating connections...' &&
 
-        airflow connections add dwh_postgres --conn-uri 'postgres://postgres:postgres@0.0.0.0:54322/${NR_OPS_DWH_POSTGRES_DB_NAME}' &&
+        airflow connections add dwh_postgres --conn-uri 'postgres://postgres:postgres@0.0.0.0:54322/${NR_OPS_DWH_POSTGRES_DB_NAME}' &&                
         airflow connections add dwh_mysql --conn-uri 'mysql+mysqldb://root:mysql@0.0.0.0:33061/${NR_OPS_DWH_MYSQL_DB_NAME}' &&
         airflow connections add data_aws --conn-type aws --conn-login admin --conn-password admin123 --conn-extra '{"endpoint_url": "http://localhost:59000", "region_name": "${NR_OPS_AWS_REGION}"}' &&
-
+        
         echo 'done!'
 
     depends_on:

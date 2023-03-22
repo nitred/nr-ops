@@ -3,10 +3,12 @@ import logging
 from typing import Dict, Iterable, List, Type
 
 from nr_ops.ops.base import BaseOp
-
-# --------------------------------------------------------------------------------------
-# connector_ops (Hooks)
-# --------------------------------------------------------------------------------------
+from nr_ops.ops.ops.connector_ops.hooks.airflow_gcp_bigquery_hook import (
+    AirflowGCPBigQueryHookConnOp,
+)
+from nr_ops.ops.ops.connector_ops.hooks.airflow_gcp_gcs_hook import (
+    AirflowGCPGCSHookConnOp,
+)
 from nr_ops.ops.ops.connector_ops.hooks.airflow_gcp_hook import AirflowGCPHookConnOp
 from nr_ops.ops.ops.connector_ops.hooks.airflow_mysql_hook import AirflowMysqlHookConnOp
 from nr_ops.ops.ops.connector_ops.hooks.airflow_postgres_hook import (
@@ -20,10 +22,8 @@ from nr_ops.ops.ops.connector_ops.hooks.http_requests_from_env import (
     HTTPRequestsHookFromEnvConnOp,
 )
 from nr_ops.ops.ops.connector_ops.hooks.python_list import PythonListHookConnOp
-
-# --------------------------------------------------------------------------------------
-# connector_ops (Interfaces)
-# --------------------------------------------------------------------------------------
+from nr_ops.ops.ops.connector_ops.interfaces.gcp_bigquery import GCPBigQueryConnOp
+from nr_ops.ops.ops.connector_ops.interfaces.gcp_gcs import GCPGCSConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.google_analytics import (
     GoogleAnalyticsConnOp,
 )
@@ -35,19 +35,14 @@ from nr_ops.ops.ops.connector_ops.interfaces.list import ListConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.mysql import MysqlConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.postgres import PostgresConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.s3 import S3ConnOp
-
-# --------------------------------------------------------------------------------------
-# consumer_ops
-# --------------------------------------------------------------------------------------
+from nr_ops.ops.ops.consumer_ops.gcp_bigquery.extract_table import GCPBigQueryToGCSOp
+from nr_ops.ops.ops.consumer_ops.gcp_gcs.delete_key import GCPGCSDeleteKeyOp
+from nr_ops.ops.ops.consumer_ops.gcp_gcs.put_key import GCPGCSPutKeyOp
 from nr_ops.ops.ops.consumer_ops.mock import MockConsumerOp
 from nr_ops.ops.ops.consumer_ops.pangres.df_to_sql_db import PangresDFToSQLDBOp
 from nr_ops.ops.ops.consumer_ops.put_list import PutListConsumerOp
 from nr_ops.ops.ops.consumer_ops.s3.put_key import S3PutKeyOp
 from nr_ops.ops.ops.consumer_ops.sql_query import SQLQueryConsumerOp
-
-# --------------------------------------------------------------------------------------
-# generator_ops
-# --------------------------------------------------------------------------------------
 from nr_ops.ops.ops.generator_ops.blade.get_token import BladeGetTokenOp
 from nr_ops.ops.ops.generator_ops.blade.orders_list_goodsout import (
     BladeOrdersListGoodsoutOp,
@@ -76,6 +71,9 @@ from nr_ops.ops.ops.generator_ops.eval_expr.eval_expr_as_metadata import (
 from nr_ops.ops.ops.generator_ops.eval_expr.eval_expr_conditional import (
     EvalExprConditionalOp,
 )
+from nr_ops.ops.ops.generator_ops.gcp_gcs.get_key import GCPGCSGetKeyOp
+from nr_ops.ops.ops.generator_ops.gcp_gcs.is_key_exists import GCPGCSIsKeyExistsOp
+from nr_ops.ops.ops.generator_ops.gcp_gcs.list_keys import GCPGCSListKeysOp
 from nr_ops.ops.ops.generator_ops.get_list import GetListGeneratorOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports import GetGAReportsOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports_ga4 import GetGAReportsGA4Op
@@ -84,18 +82,11 @@ from nr_ops.ops.ops.generator_ops.pandas.read_generic import PandasReadGenericOp
 from nr_ops.ops.ops.generator_ops.s3.get_key import S3GetKeyOp
 from nr_ops.ops.ops.generator_ops.s3.list_keys import S3ListKeysOp
 from nr_ops.ops.ops.generator_ops.sleep import SleepGeneratorOp
-
-# --------------------------------------------------------------------------------------
-# group_ops (Groups)
-# --------------------------------------------------------------------------------------
 from nr_ops.ops.ops.group_ops.op_chain import OpChainGroupOp
+from nr_ops.ops.ops.group_ops.op_chain_branch import OpChainBranchGroupOp
 from nr_ops.ops.ops.group_ops.op_fan_in import OpFanInGroupOp
 from nr_ops.ops.ops.group_ops.op_set import OpSetGroupOp
 from nr_ops.ops.ops.time_step_ops.date_range import DateRangeTimeStepOp
-
-# --------------------------------------------------------------------------------------
-# time_step_ops (TimeSteps)
-# --------------------------------------------------------------------------------------
 from nr_ops.ops.ops.time_step_ops.mock_ts import MockTimeStepOp
 from nr_ops.ops.ops.time_step_ops.simple_start_offset import SimpleStartOffsetTimeStepOp
 from nr_ops.ops.ops.time_step_ops.simple_ts import SimpleTimeStepOp
@@ -104,6 +95,8 @@ logger = logging.getLogger(__name__)
 OP_CLASSES: List[Type[BaseOp]] = [
     # connector_ops (Hooks)
     AirflowGCPHookConnOp,
+    AirflowGCPBigQueryHookConnOp,
+    AirflowGCPGCSHookConnOp,
     AirflowPostgresHookConnOp,
     AirflowMysqlHookConnOp,
     GCPServiceAccountFromFileConnOp,
@@ -118,12 +111,17 @@ OP_CLASSES: List[Type[BaseOp]] = [
     S3ConnOp,
     HTTPConnOp,
     ListConnOp,
+    GCPGCSConnOp,
+    GCPBigQueryConnOp,
     # consumer_ops
     MockConsumerOp,
     PangresDFToSQLDBOp,
     SQLQueryConsumerOp,
     S3PutKeyOp,
     PutListConsumerOp,
+    GCPBigQueryToGCSOp,
+    GCPGCSPutKeyOp,
+    GCPGCSDeleteKeyOp,
     # generator_ops
     EvalExprOp,
     EvalExprAsMetadataOp,
@@ -145,10 +143,14 @@ OP_CLASSES: List[Type[BaseOp]] = [
     BladeProductsViewVariationOp,
     GetListGeneratorOp,
     PandasReadGenericOp,
+    GCPGCSGetKeyOp,
+    GCPGCSListKeysOp,
+    GCPGCSIsKeyExistsOp,
     # group_ops (Groups)
     OpChainGroupOp,
     OpSetGroupOp,
     OpFanInGroupOp,
+    OpChainBranchGroupOp,
     # time_step_ops (TimeSteps)
     MockTimeStepOp,
     SimpleTimeStepOp,

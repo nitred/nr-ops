@@ -11,7 +11,6 @@ import jinja2.meta
 from pydantic import BaseModel, StrictBool, StrictStr, root_validator
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
-from nr_ops.messages.op_depth import BaseOpDepthModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
 from nr_ops.messages.op_msg import OpMsg, OpTimeStepMsg
 from nr_ops.messages.time_step import TimeStep
@@ -510,7 +509,7 @@ class BaseGroupOp(BaseOp, abc.ABC):
 
     @abc.abstractmethod
     def run(
-        self, depth: BaseOpDepthModel, time_step: TimeStep, msg: Optional[OpMsg] = None
+        self, time_step: TimeStep, msg: Optional[OpMsg] = None
     ) -> Generator[Optional[OpMsg], None, None]:
         raise NotImplementedError()
 

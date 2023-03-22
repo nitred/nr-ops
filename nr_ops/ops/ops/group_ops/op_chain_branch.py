@@ -13,7 +13,7 @@ from nr_ops.ops.op import Op, OpModel
 logger = logging.getLogger(__name__)
 
 
-class OpChainGroupOpConfigModel(BaseOpConfigModel):
+class OpChainBranchGroupOpConfigModel(BaseOpConfigModel):
     ops: conlist(OpModel, min_items=1)
 
     class Config:
@@ -26,7 +26,7 @@ class OpChainGroupOpConfigModel(BaseOpConfigModel):
             yield from op.get_self_and_child_op_ids()
 
 
-class OpChainGroupOpMetadataModel(BaseOpMetadataModel):
+class OpChainBranchGroupOpMetadataModel(BaseOpMetadataModel):
     output_metadata: BaseOpMetadataModel
 
     class Config:
@@ -34,7 +34,7 @@ class OpChainGroupOpMetadataModel(BaseOpMetadataModel):
         arbitrary_types_allowed = False
 
 
-class OpChainGroupOpAuditModel(BaseOpAuditModel):
+class OpChainBranchGroupOpAuditModel(BaseOpAuditModel):
     output_audit: BaseOpAuditModel
 
     class Config:
@@ -42,11 +42,17 @@ class OpChainGroupOpAuditModel(BaseOpAuditModel):
         arbitrary_types_allowed = False
 
 
-class OpChainGroupOp(BaseGroupOp):
-    OP_TYPE = "group.op_chain"
-    OP_CONFIG_MODEL = OpChainGroupOpConfigModel
-    OP_METADATA_MODEL = OpChainGroupOpMetadataModel
-    OP_AUDIT_MODEL = OpChainGroupOpAuditModel
+class OpChainBranchGroupOp(BaseGroupOp):
+    """.
+
+    Same as op_chain except that it yield the "input" msg instead of yielding "output"
+    msg of the final op in the chain.
+    """
+
+    OP_TYPE = "group.op_chain_branch"
+    OP_CONFIG_MODEL = OpChainBranchGroupOpConfigModel
+    OP_METADATA_MODEL = OpChainBranchGroupOpMetadataModel
+    OP_AUDIT_MODEL = OpChainBranchGroupOpAuditModel
 
     templated_fields = None
 
@@ -62,7 +68,8 @@ class OpChainGroupOp(BaseGroupOp):
         """A generator of output messages for each input messages.
 
         - All output messages of all input messages are yielded in order in one
-          single generator.
+          single generator. If the final op is a generator, then just consume the
+          messages.
         """
         for input_msg in msgs:
             for output_msg in op.run(time_step=time_step, msg=input_msg):
@@ -72,7 +79,7 @@ class OpChainGroupOp(BaseGroupOp):
         self, time_step: TimeStep, msg: Optional[OpMsg] = None
     ) -> Generator[Optional[OpMsg], None, None]:
         """."""
-        logger.info(f"OpChainGroupOp.run: Running")
+        logger.info(f"OpChainBranchGroupOp.run: Running")
         # Convert a single message into a generator of messages.
         # This is just to treat all messages as if they came from a generator.
         msgs = (_msg for _msg in [msg])  # type: Generator[Optional[OpMsg], None, None]
@@ -86,12 +93,12 @@ class OpChainGroupOp(BaseGroupOp):
         final_msgs = msgs
 
         for output_msg_i, output_msg in enumerate(final_msgs):
+            # CONSUME ALL MESSAGES FROM FINAL OP
             logger.info(
-                f"OpChainGroupOp.run: Yielding output_msg from op_chain | "
+                f"OpChainBranchGroupOp.run: Consuming final output_msg from op_chain | "
                 f"{output_msg_i=} | {type(output_msg.data)=}"
             )
-            yield OpMsg(
-                data=output_msg.data,
-                metadata=output_msg.metadata,
-                audit=output_msg.audit,
-            )
+            pass
+
+        # YIELD INPUT MESSAGE
+        yield msg

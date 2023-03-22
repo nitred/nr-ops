@@ -4,7 +4,6 @@ from typing import Generator, List, Optional
 from pydantic import conlist
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
-from nr_ops.messages.op_depth import BaseOpDepthModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
 from nr_ops.messages.op_msg import OpMsg
 from nr_ops.messages.time_step import TimeStep
@@ -69,7 +68,7 @@ class OpFanInGroupOp(BaseGroupOp):
         self.ops = [Op(**op) for op in ops]
 
     def run(
-        self, depth: BaseOpDepthModel, time_step: TimeStep, msg: Optional[OpMsg] = None
+        self, time_step: TimeStep, msg: Optional[OpMsg] = None
     ) -> Generator[Optional[OpMsg], None, None]:
         """."""
         logger.info(f"OpFanInGroupOp.run: Running")
@@ -79,9 +78,9 @@ class OpFanInGroupOp(BaseGroupOp):
             op_i += 1
             # Exhaust each op generator.
             # Pass the input message of this group op to each op.
-            for output_msg_i, output_msg in enumerate(op.run(depth, time_step, msg)):
+            for output_msg_i, output_msg in enumerate(op.run(time_step, msg)):
                 logger.info(
-                    f"OpFanInGroupOp.run: Yielding output_msg from "
+                    f"OpFanInGroupOp.run: Yielding output_msg from Op"
                     f"{op_i=}/{n_ops=} (1-index) | {op.op_type=} | {op.op_id=} | "
                     f"{output_msg_i} | {type(output_msg.data)=}"
                 )

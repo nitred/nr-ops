@@ -8,7 +8,6 @@ from typing import Optional
 import ruamel.yaml
 
 from nr_ops.config.main_config import MainConfigModel
-from nr_ops.messages.op_depth import BaseOpDepthModel
 from nr_ops.messages.op_msg import OpMsg
 from nr_ops.ops.op import Op
 from nr_ops.ops.op_manager import init_global_op_manager
@@ -19,8 +18,8 @@ logger = logging.getLogger(__name__)
 
 def core(
     config,
+    root_msg: OpMsg,
     return_generator: bool = False,
-    root_msg: Optional[OpMsg] = None,
 ):
     """Run core logic after logging has been initialized."""
 
@@ -44,14 +43,12 @@ def core(
     op_manager = init_global_op_manager()
     op_manager.import_env_vars(env_vars=config_model.import_env_vars)
 
-    root_depth = BaseOpDepthModel(op_type_depth="root", op_id_depth="root")
-
     # ----------------------------------------------------------------------------------
     # Initialize Connectors (if any)
     # ----------------------------------------------------------------------------------
     if config_model.connector_op is not None:
         connector = Op(**config_model.connector_op.dict())
-        for _ in connector.run(depth=root_depth):
+        for _ in connector.run():
             pass
 
     schedule_op = Op(**config_model.schedule_op.dict())
@@ -59,7 +56,7 @@ def core(
     root_op = Op(**config["root_op"])
 
     logger.info(f"main: Running schedule_op")
-    for time_step_index, time_step_msg in enumerate(schedule_op.run(depth=root_depth)):
+    for time_step_index, time_step_msg in enumerate(schedule_op.run()):
         time_step = time_step_msg.data
         time_step.index = time_step_index
 
@@ -71,13 +68,11 @@ def core(
             # This can be used by a server to collect the results (if there's any
             # results)
             return root_op.run(
-                depth=root_depth,
                 time_step=time_step,
                 msg=root_msg,
             )
         else:
             for _msg in root_op.run(
-                depth=root_depth,
                 time_step=time_step,
                 msg=root_msg,
             ):
@@ -116,7 +111,9 @@ def run():
 
         logger.info("Parsed config...")
         logger.info("Running core...")
-        core(config=config)
+
+        root_msg = OpMsg(data=None, metadata={}, audit={})
+        core(config=config, root_msg=root_msg)
         logger.info("Done running core...")
     except Exception:
         logger.exception(

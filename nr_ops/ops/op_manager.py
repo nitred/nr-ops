@@ -69,6 +69,9 @@ class OpManager(object):
             return
         self.__ops[op.op_id] = op
 
+    def get_data(self, op_id: str) -> Any:
+        return self.__data[op_id]
+
     # Alias
     def get_connector(self, op_id: str) -> BaseConnectorOp:
         conn_op = self.__data[op_id]

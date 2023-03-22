@@ -4,7 +4,6 @@ from typing import Any, Dict, Generator, Optional, Union
 
 from pydantic import BaseModel, StrictBool, StrictStr, root_validator
 
-from nr_ops.messages.op_depth import BaseOpDepthModel
 from nr_ops.messages.op_msg import OpMsg, OpTimeStepMsg
 from nr_ops.messages.time_step import TimeStep
 from nr_ops.ops.base import (
@@ -117,12 +116,11 @@ class Op(object):
 
     def run(
         self,
-        depth: BaseOpDepthModel,
         time_step: Optional[TimeStep] = None,
         msg: Optional[OpMsg] = None,
     ) -> Generator[Union[OpMsg, OpTimeStepMsg], None, None]:
         """Run the operator."""
-        depth = depth.init_new_depth(op_type=self.op_type, op_id=self.op_id)
+        logger.info("-" * 40)
         logger.info(
             f"Op.run: Running | "
             f"{self.op_obj.OP_FAMILY=} | {self.op_type=} | {self.op_id=}"
@@ -130,7 +128,7 @@ class Op(object):
 
         if self.op_obj.OP_FAMILY == "group":
             self.op_obj: BaseGroupOp
-            for _msg in self.op_obj.run(depth=depth, time_step=time_step, msg=msg):
+            for _msg in self.op_obj.run(time_step=time_step, msg=msg):
                 if self.store_metadata:
                     self.op_manager.store_metadata(op=self, msg=_msg)
                 if self.store_data:

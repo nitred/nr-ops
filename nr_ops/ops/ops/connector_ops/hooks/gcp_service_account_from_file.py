@@ -1,8 +1,5 @@
-""".
-https://googleapis.github.io/google-api-python-client/docs/dyn/analyticsreporting_v4.html
-"""
 import logging
-from typing import Generator, List
+from typing import List
 
 from pydantic import StrictStr, conlist
 
@@ -16,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class GCPServiceAccountFromFileConnOpConfigModel(BaseOpConfigModel):
     key_file_path: StrictStr
-    scopes: conlist(StrictStr, min_items=1)
+    scopes: conlist(StrictStr, min_items=0)
 
     class Config:
         extra = "forbid"

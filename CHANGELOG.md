@@ -13,6 +13,10 @@ We follow semantic versioning.
     * ...
   * Consumers
     * ...
+  * Groups
+    * ...
+  * TimeSteps
+    * ...
 * **Breaking Changes**
   * ...
 * **Non-breaking Changes**
@@ -20,6 +24,29 @@ We follow semantic versioning.
 * **Notes from future**
   * ...
 ```
+
+# Release 0.5.0 (2023-03-22)
+* **New Ops**
+  * Connector Hooks
+    * Added `connector.hooks.airflow_gcp_bigquery_hook`
+    * Added `connector.hooks.airflow_gcp_gcs_hook`
+  * Connector Interfaces
+    * Added `connector.gcp_bigquery`
+    * Added `connector.gcp_gcs`
+  * Generators
+    * Added `generator.gcp.gcs.get_key`
+    * Added `generator.gcp.gcs.list_keys`
+    * Added `generator.gcp.gcs.is_key_exists`
+  * Consumers
+    * Added `consumer.gcp.bigquery.extract_table`
+    * Added `consumer.gcp.gcs.put_key`
+    * Added `consumer.gcp.gcs.delete_key`
+  * Groups
+    * Added `group.op_chain_branch`
+* **Non-breaking Changes**
+  * Removed `op_depth` from all ops. It was not useful or was poorly implemented.
+  * `root_msg` is now no longer Optional, it cannot just be `None`, it must be an `OpMsg` with `OpMsg.data = None`.
+  * `generator.eval_expr_conditional`: Modified the op such that `"yield_input", "yield_output", "consume"` are valid options for both `on_true_behavior` and `on_false_behavior`. 
 
 # Release 0.4.0 (2023-03-10)
 * **New Ops**

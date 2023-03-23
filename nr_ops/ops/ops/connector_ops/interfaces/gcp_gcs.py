@@ -137,6 +137,13 @@ class GCPGCSConnOp(BaseConnectorOp):
         is_exists = self.gcs_hook.exists(bucket_name=bucket, object_name=key)
         return is_exists
 
+    def get_blob(self, bucket: str, key: str) -> bool:
+        """."""
+        client = self.gcs_hook.get_conn()
+        bucket = client.bucket(bucket)
+        blob = bucket.blob(blob_name=key)
+        return blob
+
     def run(self) -> OpMsg:
         """."""
         logger.info(f"S3ConnOp.run: Running")

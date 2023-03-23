@@ -177,6 +177,11 @@ class EvalExprConditionalOp(BaseGeneratorOp):
             time_step=time_step, msg=msg, log_prefix="EvalExprConditionalOp.run:"
         )
 
+        logger.info(
+            f"EvalExprOp.run: Evaluating conditional expression: "
+            f"{self.conditional_expr=}"
+        )
+
         conditional_output = eval(
             self.conditional_expr,
             {

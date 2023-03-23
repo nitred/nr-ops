@@ -483,6 +483,8 @@ class BaseOp(abc.ABC):
         for field, rendered_field_value in rendered_fields.items():
             setattr(self, field, rendered_field_value)
 
+        logger.info(f"{log_prefix} Done rendering all templated_fields")
+
         return rendered_fields
 
 

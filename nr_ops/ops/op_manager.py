@@ -72,6 +72,9 @@ class OpManager(object):
     def get_data(self, op_id: str) -> Any:
         return self.__data[op_id]
 
+    def get_metadata(self, op_id: str) -> Any:
+        return self.__metadata[op_id]
+
     # Alias
     def get_connector(self, op_id: str) -> BaseConnectorOp:
         conn_op = self.__data[op_id]

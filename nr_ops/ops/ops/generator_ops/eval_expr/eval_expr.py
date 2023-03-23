@@ -1,4 +1,5 @@
 import logging
+import time
 from io import StringIO
 from typing import Any, Dict, Generator, Optional
 
@@ -90,6 +91,9 @@ class EvalExprOp(BaseGeneratorOp):
         # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
         self.render_fields(time_step=time_step, msg=msg, log_prefix="EvalExprOp.run:")
 
+        logger.info(f"EvalExprOp.run: Evaluating expression: {self.expr=}")
+
+        start = time.time()
         output = eval(
             self.expr,
             {
@@ -99,8 +103,12 @@ class EvalExprOp(BaseGeneratorOp):
                 self.op_manager_var_name: self.op_manager,
             },
         )
+        end = time.time()
 
-        logger.info(f"EvalExprOp.run: Evaluated expression: {type(output)=}")
+        logger.info(
+            f"EvalExprOp.run: Evaluated expression: {type(output)=}. "
+            f"Time taken: {end - start:0.3f} seconds"
+        )
 
         # Special logging for pandas DataFrames
         if isinstance(output, pd.DataFrame):

@@ -1,4 +1,5 @@
 import logging
+import time
 from collections import Counter
 from typing import Any, Dict, Generator, Optional, Union
 
@@ -114,6 +115,14 @@ class Op(object):
         # Only registers the op if op_id is not None.
         self.op_manager.store_op(op=self)
 
+    def log_time_taken(self, checkpoint: float, _msg_i: int):
+        now = time.time()
+        logger.info(
+            f"Op.run: Time taken for "
+            f"{self.op_obj.OP_FAMILY=} | {self.op_type=} | {self.op_id=} | "
+            f"{_msg_i=} | {now - checkpoint:0.3f} seconds"
+        )
+
     def run(
         self,
         time_step: Optional[TimeStep] = None,
@@ -126,18 +135,25 @@ class Op(object):
             f"{self.op_obj.OP_FAMILY=} | {self.op_type=} | {self.op_id=}"
         )
 
+        checkpoint = time.time()
+
         if self.op_obj.OP_FAMILY == "group":
             self.op_obj: BaseGroupOp
-            for _msg in self.op_obj.run(time_step=time_step, msg=msg):
+            for _msg_i, _msg in enumerate(
+                self.op_obj.run(time_step=time_step, msg=msg)
+            ):
+                self.log_time_taken(checkpoint=checkpoint, _msg_i=_msg_i)
                 if self.store_metadata:
                     self.op_manager.store_metadata(op=self, msg=_msg)
                 if self.store_data:
                     self.op_manager.store_data(op=self, msg=_msg)
                 yield _msg
+                checkpoint = time.time()
 
         elif self.op_obj.OP_FAMILY == "time_step":
             self.op_obj: BaseTimeStepOp
-            for _msg in self.op_obj.run():
+            for _msg_i, _msg in enumerate(self.op_obj.run()):
+                self.log_time_taken(checkpoint=checkpoint, _msg_i=_msg_i)
                 if not isinstance(_msg.data, TimeStep):
                     raise ValueError(
                         f"Expected msg.data to be of class TimeStep for BaseScheduleOp "
@@ -148,29 +164,37 @@ class Op(object):
                 if self.store_data:
                     self.op_manager.store_data(op=self, msg=_msg)
                 yield _msg
+                checkpoint = time.time()
 
         elif self.op_obj.OP_FAMILY == "connector":
             self.op_obj: BaseConnectorOp
             _msg = self.op_obj.run()
+            self.log_time_taken(checkpoint=checkpoint, _msg_i=0)
             # ALWAYS STORE DATA FOR CONNECTOR
             self.op_manager.store_data(op=self, msg=_msg)
             if self.store_metadata:
                 self.op_manager.store_metadata(op=self, msg=_msg)
             yield _msg
+            checkpoint = time.time()
 
         elif self.op_obj.OP_FAMILY == "generator":
             self.op_obj: BaseGeneratorOp
-            for _msg in self.op_obj.run(time_step=time_step, msg=msg):
+            for _msg_i, _msg in enumerate(
+                self.op_obj.run(time_step=time_step, msg=msg)
+            ):
+                self.log_time_taken(checkpoint=checkpoint, _msg_i=_msg_i)
                 # Register output metadata with the op_manager.
                 if self.store_metadata:
                     self.op_manager.store_metadata(op=self, msg=_msg)
                 if self.store_data:
                     self.op_manager.store_data(op=self, msg=_msg)
                 yield _msg
+                checkpoint = time.time()
 
         elif self.op_obj.OP_FAMILY == "consumer":
             self.op_obj: BaseConsumerOp
             _msg = self.op_obj.run(time_step=time_step, msg=msg)
+            self.log_time_taken(checkpoint=checkpoint, _msg_i=0)
             if self.store_metadata:
                 self.op_manager.store_metadata(op=self, msg=_msg)
             if self.store_data:

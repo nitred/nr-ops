@@ -25,6 +25,15 @@ We follow semantic versioning.
   * ...
 ```
 
+
+# Release 0.5.1 (2023-03-23)
+* **Non-breaking Changes**
+  * Op now logs time taken for each message to be yielded.
+  * Added `get_metadata` method to `OpManager`
+  * Added a large list of standard libraries to `EVALS_GLOBAL` 
+  * Added more logging in general
+
+
 # Release 0.5.0 (2023-03-22)
 * **New Ops**
   * Connector Hooks

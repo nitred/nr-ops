@@ -3,6 +3,7 @@ import time
 from collections import Counter
 from typing import Any, Dict, Generator, Optional, Union
 
+import psutil
 from pydantic import BaseModel, StrictBool, StrictStr, root_validator
 
 from nr_ops.messages.op_msg import OpMsg, OpTimeStepMsg
@@ -116,11 +117,16 @@ class Op(object):
         self.op_manager.store_op(op=self)
 
     def log_time_taken(self, checkpoint: float, _msg_i: int):
+
         now = time.time()
+        memory_stats = psutil.virtual_memory()
+        memory_used = memory_stats.used / 1024**2
+        memory_used_percent = memory_stats.percent
         logger.info(
             f"Op.run: Time taken for "
             f"{self.op_obj.OP_FAMILY=} | {self.op_type=} | {self.op_id=} | "
-            f"{_msg_i=} | {now - checkpoint:0.3f} seconds"
+            f"{_msg_i=} | {now - checkpoint:0.3f} seconds | "
+            f"{memory_used=:,.2f} MB | {memory_used_percent=:.2f}%"
         )
 
     def run(

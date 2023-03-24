@@ -26,6 +26,11 @@ We follow semantic versioning.
 ```
 
 
+# Release 0.5.2 (2023-03-24)
+* **Non-breaking Changes**
+  * Added entire process memory usage stats in logs after each op message yield.
+
+
 # Release 0.5.1 (2023-03-23)
 * **Non-breaking Changes**
   * Op now logs time taken for each message to be yielded.

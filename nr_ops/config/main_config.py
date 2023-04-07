@@ -11,6 +11,7 @@ from nr_ops.utils.logging.dict_config import LoggingDictConfigModel
 class MainConfigModel(BaseModel):
     docs: Optional[StrictStr] = None
     app_version: StrictStr
+    set_env_vars: Optional[Dict[StrictStr, StrictStr]] = None
     import_env_vars: Optional[List[StrictStr]] = None
     logging: LoggingDictConfigModel = Field(default_factory=LoggingDictConfigModel)
     connector_op: Optional[OpModel] = None

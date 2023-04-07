@@ -1,6 +1,3 @@
-""".
-https://googleapis.github.io/google-api-python-client/docs/dyn/analyticsreporting_v4.html
-"""
 import logging
 from io import BytesIO
 from typing import Any, Dict, Generator, List, Literal, Optional

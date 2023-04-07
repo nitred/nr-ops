@@ -20,6 +20,29 @@ class OpManager(object):
         self.__metadata = {}
         self.__data = {}
 
+    def set_env_vars(self, env_vars: Optional[Dict[str, str]] = None):
+        """Store environment variables from os.env."""
+        env_vars = {} if env_vars is None else env_vars
+
+        if not env_vars:
+            return
+
+        env_vars_keys = list(env_vars.keys())
+        logger.info(f"OpManager: Settings environment variables. {env_vars_keys=}")
+
+        for env_var_key, env_var_value in env_vars.items():
+
+            if not isinstance(env_var_value, str):
+                raise TypeError(
+                    f"set_env_vars: The environment variable value for the "
+                    f"{env_var_key=} is not a string. Please check the config file "
+                    f"and make sure that ALL environment variable values are strings."
+                )
+
+            # Set the environment variable both in os.environ and self.env_vars
+            os.environ[env_var_key] = env_var_value
+            self.env_vars[env_var_key] = env_var_value
+
     def import_env_vars(self, env_vars: Optional[List[str]] = None):
         """Store environment variables from os.env."""
         logger.info(f"OpManager: Importing environment variables. {env_vars=}")

@@ -24,6 +24,14 @@ from functools import partial
 import numpy as np
 import pandas as pd
 import requests
+import sklearn
+import sklearn.datasets
+import sklearn.linear_model
+import sklearn.metrics
+import sklearn.model_selection
+import sklearn.pipeline
+import sklearn.preprocessing
+import sklearn.svm
 
 logger = logging.getLogger(__name__)
 
@@ -53,4 +61,13 @@ EVAL_GLOBALS = {
     "shutil": shutil,
     "tarfile": tarfile,
     "zipfile": zipfile,
+    # sklearn
+    "sklearn": sklearn,
+    "sklearn.datasets": sklearn.datasets,
+    "sklearn.linear_model": sklearn.linear_model,
+    "sklearn.metrics": sklearn.metrics,
+    "sklearn.model_selection": sklearn.model_selection,
+    "sklearn.pipeline": sklearn.pipeline,
+    "sklearn.preprocessing": sklearn.preprocessing,
+    "sklearn.svm": sklearn.svm,
 }

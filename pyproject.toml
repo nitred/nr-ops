@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nr-ops"
-version = "0.5.2"
+version = "0.6.0.0.dev7"
 description = "An opinionated operator framework."
 authors = ["Nitish Reddy Koripalli <nitish.k.reddy@gmail.com>"]
 
@@ -41,6 +41,17 @@ zstandard = "==0.19.0"
 backoff = "==2.2.1"
 openpyxl = "==3.1.1"
 
+# scikit-learn dependencies
+scikit-learn = "==1.2.2"
+scipy = "==1.10.1"
+joblib = "==1.2.0"
+threadpoolctl = "==3.1.0"
+
+matplotlib = "==3.7.1"
+dbt-core = "==1.4.5"
+dbt-postgres = "==1.4.5"
+google-ads = "==21.0.0"
+
 
 [tool.poetry.extras]
 
@@ -48,7 +59,6 @@ openpyxl = "==3.1.1"
 [tool.poetry.dev-dependencies]
 black = "==22.12.0"
 isort = "==5.11.4"
-poetry = "==1.1.15"
 
 
 [tool.black]

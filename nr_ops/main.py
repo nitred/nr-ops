@@ -41,6 +41,7 @@ def core(
 
     # Global op manager needs to be initialized before any ops are created.
     op_manager = init_global_op_manager()
+    op_manager.set_env_vars(env_vars=config_model.set_env_vars)
     op_manager.import_env_vars(env_vars=config_model.import_env_vars)
 
     # ----------------------------------------------------------------------------------

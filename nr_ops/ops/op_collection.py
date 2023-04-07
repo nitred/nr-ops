@@ -24,6 +24,7 @@ from nr_ops.ops.ops.connector_ops.hooks.http_requests_from_env import (
 from nr_ops.ops.ops.connector_ops.hooks.python_list import PythonListHookConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.gcp_bigquery import GCPBigQueryConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.gcp_gcs import GCPGCSConnOp
+from nr_ops.ops.ops.connector_ops.interfaces.google_ads import GoogleAdsConnectorOp
 from nr_ops.ops.ops.connector_ops.interfaces.google_analytics import (
     GoogleAnalyticsConnOp,
 )
@@ -35,14 +36,26 @@ from nr_ops.ops.ops.connector_ops.interfaces.list import ListConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.mysql import MysqlConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.postgres import PostgresConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.s3 import S3ConnOp
+from nr_ops.ops.ops.consumer_ops.dbt.dbt_run import DBTRunConsumerOp
 from nr_ops.ops.ops.consumer_ops.gcp_bigquery.extract_table import GCPBigQueryToGCSOp
 from nr_ops.ops.ops.consumer_ops.gcp_gcs.delete_key import GCPGCSDeleteKeyOp
 from nr_ops.ops.ops.consumer_ops.gcp_gcs.put_key import GCPGCSPutKeyOp
+from nr_ops.ops.ops.consumer_ops.google_ads.upload_offline_conversion import (
+    GoogleAdsUploadOfflineConversionOp,
+)
 from nr_ops.ops.ops.consumer_ops.mock import MockConsumerOp
 from nr_ops.ops.ops.consumer_ops.pangres.df_to_sql_db import PangresDFToSQLDBOp
 from nr_ops.ops.ops.consumer_ops.put_list import PutListConsumerOp
 from nr_ops.ops.ops.consumer_ops.s3.put_key import S3PutKeyOp
+from nr_ops.ops.ops.consumer_ops.shell.shell_run import ShellRunConsumerOp
 from nr_ops.ops.ops.consumer_ops.sql_query import SQLQueryConsumerOp
+from nr_ops.ops.ops.generator_ops.airflow.dagruns.get_dagrun import (
+    AirflowDagRunGetDagRunOp,
+)
+from nr_ops.ops.ops.generator_ops.airflow.dagruns.trigger_dagrun import (
+    AirflowDagRunTriggerDagRunOp,
+)
+from nr_ops.ops.ops.generator_ops.batch import BatchGeneratorOp
 from nr_ops.ops.ops.generator_ops.blade.get_token import BladeGetTokenOp
 from nr_ops.ops.ops.generator_ops.blade.orders_list_goodsout import (
     BladeOrdersListGoodsoutOp,
@@ -79,9 +92,15 @@ from nr_ops.ops.ops.generator_ops.google.get_ga_reports import GetGAReportsOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports_ga4 import GetGAReportsGA4Op
 from nr_ops.ops.ops.generator_ops.mock import MockGeneratorOp
 from nr_ops.ops.ops.generator_ops.pandas.read_generic import PandasReadGenericOp
+from nr_ops.ops.ops.generator_ops.pandas.train_and_test_split import (
+    PandasTrainTestSplit,
+)
+from nr_ops.ops.ops.generator_ops.pickle.pickle import PickleGeneratorOp
+from nr_ops.ops.ops.generator_ops.pickle.unpickle import UnPickleGeneratorOp
 from nr_ops.ops.ops.generator_ops.s3.get_key import S3GetKeyOp
 from nr_ops.ops.ops.generator_ops.s3.list_keys import S3ListKeysOp
 from nr_ops.ops.ops.generator_ops.sleep import SleepGeneratorOp
+from nr_ops.ops.ops.generator_ops.sql_query import SQLQueryGeneratorOp
 from nr_ops.ops.ops.group_ops.op_chain import OpChainGroupOp
 from nr_ops.ops.ops.group_ops.op_chain_branch import OpChainBranchGroupOp
 from nr_ops.ops.ops.group_ops.op_fan_in import OpFanInGroupOp
@@ -113,6 +132,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     ListConnOp,
     GCPGCSConnOp,
     GCPBigQueryConnOp,
+    GoogleAdsConnectorOp,
     # consumer_ops
     MockConsumerOp,
     PangresDFToSQLDBOp,
@@ -122,7 +142,12 @@ OP_CLASSES: List[Type[BaseOp]] = [
     GCPBigQueryToGCSOp,
     GCPGCSPutKeyOp,
     GCPGCSDeleteKeyOp,
+    ShellRunConsumerOp,
+    DBTRunConsumerOp,
+    GoogleAdsUploadOfflineConversionOp,
     # generator_ops
+    AirflowDagRunTriggerDagRunOp,
+    AirflowDagRunGetDagRunOp,
     EvalExprOp,
     EvalExprAsMetadataOp,
     EvalExprConditionalOp,
@@ -143,9 +168,14 @@ OP_CLASSES: List[Type[BaseOp]] = [
     BladeProductsViewVariationOp,
     GetListGeneratorOp,
     PandasReadGenericOp,
+    PandasTrainTestSplit,
     GCPGCSGetKeyOp,
     GCPGCSListKeysOp,
     GCPGCSIsKeyExistsOp,
+    BatchGeneratorOp,
+    SQLQueryGeneratorOp,
+    PickleGeneratorOp,
+    UnPickleGeneratorOp,
     # group_ops (Groups)
     OpChainGroupOp,
     OpSetGroupOp,

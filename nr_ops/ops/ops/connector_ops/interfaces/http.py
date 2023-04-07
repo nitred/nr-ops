@@ -1,9 +1,6 @@
-""".
-https://googleapis.github.io/google-api-python-client/docs/dyn/analyticsreporting_v4.html
-"""
+import copy
 import importlib
 import logging
-from functools import partial
 from typing import Any, Dict, Generator, List, Literal, Optional, Tuple, Union
 
 import backoff
@@ -114,6 +111,8 @@ class HTTPConnOpConfigModel(BaseOpConfigModel):
     #     backoff_wait_gen_config:
     #       values: [null, 5, 30, 60, 120, 180]
 
+    apply_basic_auth: StrictBool = False
+
     class Config:
         extra = "forbid"
         arbitrary_types_allowed = False
@@ -152,6 +151,7 @@ class HTTPConnOp(BaseConnectorOp):
         hook_type: str,
         hook_config: Dict[str, Any],
         backoff_config: Optional[Dict[str, Any]] = None,
+        apply_basic_auth: bool = False,
         **kwargs,
     ):
         self.hook_type = hook_type
@@ -160,6 +160,7 @@ class HTTPConnOp(BaseConnectorOp):
         # backoff config will be enabled. If user specifies backoff_config={} then
         # default backoff config will be enabled!
         self.backoff_config = backoff_config
+        self.apply_basic_auth = apply_basic_auth
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
@@ -219,24 +220,6 @@ class HTTPConnOp(BaseConnectorOp):
             **backoff_model.on_exception_kwargs,
         )
 
-    def run(self) -> OpMsg:
-        """."""
-        logger.info(f"HTTPConnOp.run: Running")
-
-        # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
-        self.render_fields(time_step=None, msg=None, log_prefix="HTTPConnOp.run:")
-
-        if self.hook_type == "connector.hooks.http_requests_from_env":
-            pass
-        else:
-            raise NotImplementedError()
-
-        return OpMsg(
-            data=self,
-            metadata=HTTPConnOpMetadataModel(),
-            audit=HTTPConnOpAuditModel(),
-        )
-
     ####################################################################################
     # PROPERTIES
     ####################################################################################
@@ -275,22 +258,58 @@ class HTTPConnOp(BaseConnectorOp):
     ####################################################################################
 
     def __call_logic(
-        self, requests_method, url, return_type, requests_kwargs, accepted_status_codes
+        self,
+        requests_method,
+        url,
+        return_type: Literal["json", "text"],
+        requests_kwargs,
+        accepted_status_codes: Optional[List[int]] = None,
     ):
         """."""
+        if self.apply_basic_auth and requests_kwargs.get("auth", None):
+            logger.info(
+                f"HTTPConnOp.__call_logic: `apply_basic_auth` is True but `auth` "
+                f"kwargs already exists in the user provided config. "
+                f"Overriding `auth` kwarg with username and password."
+            )
+            requests_kwargs = copy.deepcopy(requests_kwargs)
+            requests_kwargs["auth"] = (self.username, self.password)
+
+        elif self.apply_basic_auth:
+            logger.info(
+                f"HTTPConnOp.__call_logic: `apply_basic_auth` is True. "
+                f"Applying basic authentication from hook connection information."
+            )
+            requests_kwargs = copy.deepcopy(requests_kwargs)
+            requests_kwargs["auth"] = (self.username, self.password)
+        else:
+            raise NotImplementedError()
+
         response = requests_method(url, **requests_kwargs)
 
-        if response.status_code in accepted_status_codes:
-            if return_type == "json":
-                return response.status_code, response.json()
-            elif return_type == "text":
-                return response.status_code, response.text
-            else:
-                raise NotImplementedError()
+        if return_type == "json":
+            status_code, response_data = response.status_code, response.json()
+        elif return_type == "text":
+            status_code, response_data = response.status_code, response.text
+        else:
+            raise NotImplementedError()
+
+        if accepted_status_codes is None:
+            logger.info(
+                f"HTTPConnOp.__call_logic: No accepted_status_codes specified. "
+                f"Not validating {status_code=}. Returning payload."
+            )
+            return status_code, response_data
+        elif status_code in accepted_status_codes:
+            logger.info(
+                f"HTTPConnOp.__call_logic: {status_code=} is in "
+                f"{accepted_status_codes=}. Returning payload."
+            )
+            return status_code, response_data
         else:
             msg = (
                 f"HTTPConnOp.__call_logic: {accepted_status_codes=}, instead received "
-                f"{response.status_code=}. Raising HTTPError so that it can be caught "
+                f"{status_code=}. Raising HTTPError so that it can be caught "
                 f"by the backoff wrapper. response.text:\n{response.text}"
             )
             logger.exception(msg)
@@ -312,9 +331,6 @@ class HTTPConnOp(BaseConnectorOp):
             f"{accepted_status_codes=}. Not logging URL since it may contain secrets."
         )
         requests_kwargs = {} if requests_kwargs is None else requests_kwargs
-        accepted_status_codes = (
-            [200] if accepted_status_codes is None else accepted_status_codes
-        )
 
         requests_method = getattr(requests, method)
 
@@ -334,4 +350,30 @@ class HTTPConnOp(BaseConnectorOp):
             return_type=return_type,
             requests_kwargs=requests_kwargs,
             accepted_status_codes=accepted_status_codes,
+        )
+
+    def run(self) -> OpMsg:
+        """."""
+        logger.info(f"HTTPConnOp.run: Running")
+
+        # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
+        self.render_fields(time_step=None, msg=None, log_prefix="HTTPConnOp.run:")
+
+        if self.hook_type == "connector.hooks.http_requests_from_env":
+            # Validate that if apply_basic_auth is True, then username and password
+            # are not None.
+            if self.apply_basic_auth:
+                if (not self.username) or (not self.password):
+                    raise ValueError(
+                        f"HTTPConnOp.run: `apply_basic_auth` is True but username or "
+                        f"password or both have not been provided."
+                    )
+
+        else:
+            raise NotImplementedError()
+
+        return OpMsg(
+            data=self,
+            metadata=HTTPConnOpMetadataModel(),
+            audit=HTTPConnOpAuditModel(),
         )

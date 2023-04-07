@@ -15,7 +15,13 @@ logger = logging.getLogger(__name__)
 
 class PandasReadGenericOpConfigModel(BaseOpConfigModel):
     input_as_argument: bool = True
-    read_type: Literal["read_csv", "read_excel", "read_json", "read_parquet"]
+    read_type: Literal[
+        "read_csv",
+        "read_excel",
+        "read_json",
+        "read_parquet",
+        "read_sql",
+    ]
     read_kwargs: Dict[str, Any]
 
     class Config:

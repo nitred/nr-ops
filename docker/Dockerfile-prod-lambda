@@ -7,7 +7,7 @@ RUN apt update && \
     apt install -y python3-dev default-libmysqlclient-dev build-essential && \
     \
     echo "Installing dependencies for awslambdaric" && \
-	apt install -y g++ make cmake unzip libcurl4-openssl-dev && \
+	  apt install -y g++ make cmake unzip libcurl4-openssl-dev && \
     \
     adduser --disabled-login --disabled-password --gecos "" appuser && \
     echo "appuser ALL = NOPASSWD: ALL" >> /etc/sudoers && \
@@ -22,7 +22,7 @@ ENV PATH=/home/appuser/.local/bin:$PATH
 
 COPY pyproject.toml poetry.lock /home/appuser/
 
-RUN pip install --no-cache-dir pip wheel poetry==1.1.15 && \
+RUN pip install --no-cache-dir pip wheel poetry==1.4.2 && \
     poetry export -f requirements.txt --without-hashes > requirements-tmp.txt && \
     pip install --no-cache-dir -r requirements-tmp.txt
 

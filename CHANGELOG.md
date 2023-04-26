@@ -25,6 +25,38 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.6.0 (2023-04-26)
+* **New Ops**
+  * Connector Interfaces
+    * Added GoogleAdsConnectorOp (does not require any hooks and only relies on environment variables)
+  * Generators
+    * Added SQLQueryGeneratorOp
+    * Added PandasTrainTestSplit
+    * Added PickleGeneratorOp
+    * Added UnPickleGeneratorOp
+    * Added AirflowDagRunGetDagRunOp
+    * Added AirflowDagRunTriggerDagRunOp
+  * Consumers
+    * Added ShellRunConsumerOp
+    * Added DBTRunConsumerOp
+    * Added GoogleAdsUploadOfflineConversionOp
+* **Breaking Changes**
+  * Added dependencies for dbt: `dbt-core==1.4.5` and `dbt-postgres==1.4.5`
+  * Added dependencies for google-ads: `google-ads==21.0.0`
+  * IMPORTANT: Using `poetry==1.4.2` and poetry has been removed from dev dependencies and instead has been installed globally in a separate environment. Some dependency conflicts have been resolved by doing this.
+* **Non-breaking Changes**
+  * Added `set_env_vars` to MainConfigModel
+  * Added `read_sql` as a read_type for PandasReadGenericOp
+  * Added the following sklearn imports to EVAL_GLOBALS
+    * `sklearn`
+    * `sklearn.datasets`
+    * `sklearn.linear_model`
+    * `sklearn.metrics`
+    * `sklearn.model_selection`
+    * `sklearn.pipeline`
+    * `sklearn.preprocessing`
+    * `sklearn.svm`
+ 
 
 # Release 0.5.2 (2023-03-24)
 * **Non-breaking Changes**

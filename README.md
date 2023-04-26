@@ -5,7 +5,7 @@ An opinionated operator framework.
 # Pre-requisites
 
 * `python=3.9`, next milestone will be `python=3.11` in Q1 2024
-* `pip install poetry==1.1.15`
+* IMPORTANT: Using `poetry==1.4.2` and poetry has been removed from dev dependencies and instead has been installed globally in a separate environment. Some dependency conflicts have been resolved by doing this.
 
 
 # Setup
@@ -23,6 +23,18 @@ An opinionated operator framework.
     airflow config get-value database sql_alchemy_conn
     airflow config get-value core executor
     ```
+
+# Other Important Notes
+
+* If using any Google or GCP connectors (except GoogleAds) it's best to have the `GOOGLE_APPLICATION_CREDENTIALS` environment variable set to the path of your service account key file.
+* If using Google Ads connectors, then set `GOOGLE_ADS_CONFIGURATION_FILE_PATH` environment variables to the path of your configuration/credentials file.
+  ```
+  developer_token: "ADS_DEVELOPER_TOKEN"
+  json_key_file_path: "PATH_TO_SERVICE_ACCOUNT"
+  login_customer_id: "GOOGLE_ADS_ID_WITHOUT_HYPHENS"
+  impersonated_email: "ANY_REAL_GOOGLE_ADS_USER_WHO_HAS_ACCESS_TO_ADS_ACCOUNT"  
+  use_proto_plus: true/false
+  ```
 
 
 # License

@@ -1,7 +1,7 @@
 FROM python:3.9.16-slim-bullseye
 
 RUN apt update && \
-    apt install -y sudo && \
+    apt install sudo vim git net-tools iputils-ping curl wget -y && \
     \
     echo "Installing dependencies for mysqlclient" && \
     apt install -y python3-dev default-libmysqlclient-dev build-essential && \

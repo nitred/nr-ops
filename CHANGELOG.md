@@ -25,6 +25,11 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.6.1 (2023-05-05)
+* **Non-breaking Changes**
+  * `vim git net-tools iputils-ping curl wget` are now installed in the docker image.
+
+
 # Release 0.6.0 (2023-04-26)
 * **New Ops**
   * Connector Interfaces

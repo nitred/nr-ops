@@ -73,7 +73,7 @@ class ShellRunConsumerOp(BaseConsumerOp):
 
         # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
         self.render_fields(
-            time_step=time_step, msg=None, log_prefix="ShellRunConsumerOp.run:"
+            time_step=time_step, msg=msg, log_prefix="ShellRunConsumerOp.run:"
         )
 
         if self.log_cmd:

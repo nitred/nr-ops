@@ -74,7 +74,7 @@ class PandasReadGenericOp(BaseGeneratorOp):
 
         # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
         self.render_fields(
-            time_step=time_step, msg=None, log_prefix="PandasReadGenericOp.run:"
+            time_step=time_step, msg=msg, log_prefix="PandasReadGenericOp.run:"
         )
 
         read_func = getattr(pd, self.read_type)

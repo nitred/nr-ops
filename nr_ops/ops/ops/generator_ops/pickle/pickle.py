@@ -70,7 +70,7 @@ class PickleGeneratorOp(BaseGeneratorOp):
 
         # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
         self.render_fields(
-            time_step=time_step, msg=None, log_prefix="PickleGeneratorOp.run:"
+            time_step=time_step, msg=msg, log_prefix="PickleGeneratorOp.run:"
         )
 
         logger.info(f"PickleGeneratorOp.run: ")

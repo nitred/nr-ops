@@ -90,7 +90,7 @@ class DBTRunConsumerOp(BaseConsumerOp):
 
         # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
         self.render_fields(
-            time_step=time_step, msg=None, log_prefix="DBTRunConsumerOp.run:"
+            time_step=time_step, msg=msg, log_prefix="DBTRunConsumerOp.run:"
         )
 
         self.dbt_kwargs_model = DBTKwargsModel(**self.dbt_kwargs)

@@ -81,7 +81,8 @@ class DBTRunConsumerOp(BaseConsumerOp):
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
-        self.dbt_kwargs_model = DBTKwargsModel(**self.dbt_kwargs)
+        # Will be populated after render_fields is called in run()
+        self.dbt_kwargs_model: Any = None
 
     def run(self, time_step: TimeStep, msg: Optional[OpMsg] = None) -> OpMsg:
         """."""
@@ -91,6 +92,8 @@ class DBTRunConsumerOp(BaseConsumerOp):
         self.render_fields(
             time_step=time_step, msg=None, log_prefix="DBTRunConsumerOp.run:"
         )
+
+        self.dbt_kwargs_model = DBTKwargsModel(**self.dbt_kwargs)
 
         models_include_str = "--select " + " ".join(self.models_include)
 

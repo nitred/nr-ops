@@ -400,7 +400,7 @@ class BaseOp(abc.ABC):
                 log_prefix=log_prefix,
             )
         else:
-            pass
+            return field_value
 
     def render_fields(
         self, time_step: Optional[TimeStep], msg: Optional[OpMsg], log_prefix: str = ""

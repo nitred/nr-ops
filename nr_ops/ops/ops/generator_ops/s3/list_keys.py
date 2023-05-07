@@ -27,8 +27,8 @@ class S3ListKeysOpConfigModel(BaseOpConfigModel):
 
     @validator("prefix", pre=False)
     def validate_prefix(cls, prefix: str):
-        if not prefix.endswith("/"):
-            raise ValueError(f"{prefix=} must end with a '/'")
+        if prefix and not prefix.endswith("/"):
+            raise ValueError(f"{prefix=} must end with a '/' if not empty")
 
         if prefix.startswith("/"):
             raise ValueError(f"{prefix=} must not start with a '/'")

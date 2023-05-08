@@ -25,6 +25,14 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.6.2 (2023-05-08)
+* **Breaking Changes**
+  * bugfix: templated_fields now handles non-str data types correctly when using recursive templating
+  * bugfix: dbt_kwargs_model in dbt.run is now correctly initialized after fields have been rendered
+  * bugfix: s3.list_keys now correctly allows an empty prefix '' 
+  * bugfix: msg obj is now correctly passed to render_fields instead of None in some cases
+
+
 # Release 0.6.1 (2023-05-05)
 * **Non-breaking Changes**
   * `vim git net-tools iputils-ping curl wget` are now installed in the docker image.

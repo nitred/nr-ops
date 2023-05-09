@@ -16,14 +16,12 @@ from nr_ops.ops.ops.connector_ops.interfaces.http import HTTPConnOp
 logger = logging.getLogger(__name__)
 
 
-class AirflowDagRunTriggerDagRunOpConfigModel(BaseOpConfigModel):
+class AirflowDagRunClearDagRunOpConfigModel(BaseOpConfigModel):
     http_conn_id: StrictStr
     dag_id: StrictStr
-    logical_date: Optional[StrictStr] = None
-    dag_run_id: Optional[StrictStr] = None
-    conf: Optional[Dict[str, Any]] = None
-    accepted_status_codes: Optional[conlist(int, min_items=1)] = None
+    dag_run_id: StrictStr
     include_etl_metadata: StrictBool = False
+    accepted_status_codes: Optional[conlist(int, min_items=1)] = None
     requests_kwargs: Optional[Dict[str, Any]] = None
 
     class Config:
@@ -31,7 +29,7 @@ class AirflowDagRunTriggerDagRunOpConfigModel(BaseOpConfigModel):
         arbitrary_types_allowed = False
 
 
-class AirflowDagRunTriggerDagRunOpMetadataModel(BaseOpMetadataModel):
+class AirflowDagRunClearDagRunOpMetadataModel(BaseOpMetadataModel):
     etl_request_start_ts: StrictStr
     etl_response_end_ts: StrictStr
 
@@ -40,7 +38,7 @@ class AirflowDagRunTriggerDagRunOpMetadataModel(BaseOpMetadataModel):
         arbitrary_types_allowed = False
 
 
-class AirflowDagRunTriggerDagRunOpAuditModel(BaseOpAuditModel):
+class AirflowDagRunClearDagRunOpAuditModel(BaseOpAuditModel):
     pass
 
     class Config:
@@ -48,13 +46,13 @@ class AirflowDagRunTriggerDagRunOpAuditModel(BaseOpAuditModel):
         arbitrary_types_allowed = False
 
 
-class AirflowDagRunTriggerDagRunOp(BaseGeneratorOp):
+class AirflowDagRunClearDagRunOp(BaseGeneratorOp):
     """."""
 
-    OP_TYPE = "generator.airflow.dagruns.trigger_dagrun"
-    OP_CONFIG_MODEL = AirflowDagRunTriggerDagRunOpConfigModel
-    OP_METADATA_MODEL = AirflowDagRunTriggerDagRunOpMetadataModel
-    OP_AUDIT_MODEL = AirflowDagRunTriggerDagRunOpAuditModel
+    OP_TYPE = "generator.airflow.dagruns.clear_dagrun"
+    OP_CONFIG_MODEL = AirflowDagRunClearDagRunOpConfigModel
+    OP_METADATA_MODEL = AirflowDagRunClearDagRunOpMetadataModel
+    OP_AUDIT_MODEL = AirflowDagRunClearDagRunOpAuditModel
 
     templated_fields = None
 
@@ -62,19 +60,16 @@ class AirflowDagRunTriggerDagRunOp(BaseGeneratorOp):
         self,
         http_conn_id: str,
         dag_id: str,
-        logical_date: Optional[str] = None,
-        conf: Optional[Dict[str, Any]] = None,
-        dag_run_id: Optional[str] = None,
-        accepted_status_codes: Optional[List[int]] = None,
+        dag_run_id: str,
         include_etl_metadata: bool = False,
+        accepted_status_codes: Optional[List[int]] = None,
         requests_kwargs: Optional[Dict[str, any]] = None,
         **kwargs,
     ):
         """."""
+
         self.http_conn_id = http_conn_id
         self.dag_id = dag_id
-        self.logical_date = logical_date
-        self.conf = conf if conf is not None else {}
         self.dag_run_id = dag_run_id
         self.accepted_status_codes = accepted_status_codes
         self.include_etl_metadata = include_etl_metadata
@@ -86,21 +81,22 @@ class AirflowDagRunTriggerDagRunOp(BaseGeneratorOp):
 
         self.http_conn: HTTPConnOp = op_manager.get_connector(op_id=self.http_conn_id)
 
-    def dagrun_trigger(self) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    def dagrun_clear(self) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         """."""
-        url = f"{self.http_conn.base_url}/api/v1/dags/{self.dag_id}/dagRuns"
+        url = (
+            f"{self.http_conn.base_url}/api/v1/dags/"
+            f"{self.dag_id}/dagRuns/{self.dag_run_id}/clear"
+        )
         logger.info(
-            f"AirflowDagRunTriggerDagRunOp.dagrun_trigger: Triggering DAG Run with "
-            f"{self.dag_id=} with {url=}"
+            f"AirflowDagRunClearDagRunOp.dagrun_trigger: Clearing DAG Run with "
+            f"{self.dag_id=} & {self.dag_run_id=} with {url=}"
         )
 
         etl_request_start_ts = pd.Timestamp.now(tz="UTC").isoformat()
 
-        payload = {"conf": self.conf}
-        if self.dag_run_id is not None:
-            payload["dag_run_id"] = self.dag_run_id
-        if self.logical_date is not None:
-            payload["logical_date"] = self.logical_date
+        payload = {
+            "dry_run": False,
+        }
 
         status_code, response_json = self.http_conn.call(
             method="post",
@@ -133,24 +129,24 @@ class AirflowDagRunTriggerDagRunOp(BaseGeneratorOp):
         self, time_step: TimeStep, msg: Optional[OpMsg] = None
     ) -> Generator[OpMsg, None, None]:
         """."""
-        logger.info(f"AirflowDagRunTriggerDagRunOp.run: Running")
+        logger.info(f"AirflowDagRunClearDagRunOp.run: Running")
 
         # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
         self.render_fields(
-            time_step=time_step, msg=msg, log_prefix="AirflowDagRunTriggerDagRunOp.run:"
+            time_step=time_step, msg=msg, log_prefix="AirflowDagRunClearDagRunOp.run:"
         )
 
-        logger.info(f"AirflowDagRunTriggerDagRunOp.run: Yielding results for page")
+        logger.info(f"AirflowDagRunClearDagRunOp.run: Yielding results for page")
 
-        etl_metadata_json, output_json = self.dagrun_trigger()
+        etl_metadata_json, output_json = self.dagrun_clear()
 
         if self.include_etl_metadata:
             output_json["etl_metadata"] = etl_metadata_json
 
         yield OpMsg(
             data=output_json,
-            metadata=AirflowDagRunTriggerDagRunOpMetadataModel(
+            metadata=AirflowDagRunClearDagRunOpMetadataModel(
                 **etl_metadata_json,
             ),
-            audit=AirflowDagRunTriggerDagRunOpAuditModel(),
+            audit=AirflowDagRunClearDagRunOpAuditModel(),
         )

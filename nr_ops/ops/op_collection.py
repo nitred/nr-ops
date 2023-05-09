@@ -49,6 +49,12 @@ from nr_ops.ops.ops.consumer_ops.put_list import PutListConsumerOp
 from nr_ops.ops.ops.consumer_ops.s3.put_key import S3PutKeyOp
 from nr_ops.ops.ops.consumer_ops.shell.shell_run import ShellRunConsumerOp
 from nr_ops.ops.ops.consumer_ops.sql_query import SQLQueryConsumerOp
+from nr_ops.ops.ops.generator_ops.airflow.dag.clear_task_instances import (
+    AirflowDagClearTaskInstancesOp,
+)
+from nr_ops.ops.ops.generator_ops.airflow.dagruns.clear_dagrun import (
+    AirflowDagRunClearDagRunOp,
+)
 from nr_ops.ops.ops.generator_ops.airflow.dagruns.get_dagrun import (
     AirflowDagRunGetDagRunOp,
 )
@@ -148,6 +154,8 @@ OP_CLASSES: List[Type[BaseOp]] = [
     # generator_ops
     AirflowDagRunTriggerDagRunOp,
     AirflowDagRunGetDagRunOp,
+    AirflowDagRunClearDagRunOp,
+    AirflowDagClearTaskInstancesOp,
     EvalExprOp,
     EvalExprAsMetadataOp,
     EvalExprConditionalOp,

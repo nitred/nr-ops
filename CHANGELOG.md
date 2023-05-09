@@ -25,6 +25,13 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.7.0 (2023-05-09)
+* **New Ops**
+  * Generators
+    * Added AirflowDagRunClearDagRunOp
+    * Added `AirflowDagClearTaskInstancesOp`
+
+
 # Release 0.6.2 (2023-05-08)
 * **Breaking Changes**
   * bugfix: templated_fields now handles non-str data types correctly when using recursive templating

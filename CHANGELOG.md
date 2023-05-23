@@ -25,6 +25,26 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.8.0 (2023-05-22)
+* **New Ops**
+  * Connector Hooks
+    * PythonQueueHookConnOp
+  * Connector Interfaces
+    * QueueConnOp
+  * Generators
+    * BigComOrdersGetAllOrdersOp
+    * BigComProductsGetAllProductsOp
+    * BigComProductsGetAllProductVariantsOp
+    * ListGetGeneratorOp
+    * QueueGetGeneratorOp
+  * Consumers
+    * NROpsPostgresCreateETLTableConsumerOp
+    * ListPutConsumerOp
+    * QueuePutConsumerOp
+* **Non-breaking Changes**
+  * Added `apply_extras_as_headers` arguments to HTTPRequestsHookFromEnvConnOp hook and HTTPConnOp interface
+
+
 # Release 0.7.0 (2023-05-09)
 * **New Ops**
   * Generators

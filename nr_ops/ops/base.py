@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 import builtins
 import copy
+import json
 import logging
 from typing import Any, Dict, Generator, List, Literal, Optional, Type, Union
 
@@ -32,6 +33,7 @@ class FieldTemplateConfigModel(BaseModel):
     is_secret: StrictBool = False
     is_recursive: StrictBool = False
     recursive_config: Optional[RecursiveTemplateConfigModel] = None
+    apply_json_serialization: StrictBool = False
 
     class Config:
         extra = "forbid"
@@ -320,10 +322,37 @@ class BaseOp(abc.ABC):
                 **EVAL_GLOBALS,
             }
         )
+
         if field_config.is_secret:
             logger.info(f"{log_prefix} Rendered {field=}: rendered_field_value=******")
         else:
             logger.info(f"{log_prefix} Rendered {field=}: {rendered_field_value=}")
+
+        if field_config.apply_json_serialization:
+            logger.info(
+                f"{log_prefix} Rendered {field=}: "
+                f"{field_config.apply_json_serialization=}. "
+                f"Applying json.loads on rendered_field_value."
+            )
+            rendered_field_value = json.loads(rendered_field_value)
+            logger.info(
+                f"{log_prefix} Rendered {field=}: "
+                f"{field_config.apply_json_serialization=}. "
+                f"Done serializing rendered_field_value with json.loads. "
+            )
+
+            # log rendered_field_value again, this time with types
+            if field_config.is_secret:
+                logger.info(
+                    f"{log_prefix} Serialized {field=}: rendered_field_value=****** | "
+                    f"{type(rendered_field_value)=}"
+                )
+            else:
+                logger.info(
+                    f"{log_prefix} Serialized {field=}: {rendered_field_value=} | "
+                    f"{type(rendered_field_value)=}"
+                )
+
         return rendered_field_value
 
     def __render_field_recursive(

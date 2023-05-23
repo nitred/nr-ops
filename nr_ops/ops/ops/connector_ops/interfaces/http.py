@@ -112,6 +112,7 @@ class HTTPConnOpConfigModel(BaseOpConfigModel):
     #       values: [null, 5, 30, 60, 120, 180]
 
     apply_basic_auth: StrictBool = False
+    apply_extras_as_headers: StrictBool = True
 
     class Config:
         extra = "forbid"
@@ -152,6 +153,7 @@ class HTTPConnOp(BaseConnectorOp):
         hook_config: Dict[str, Any],
         backoff_config: Optional[Dict[str, Any]] = None,
         apply_basic_auth: bool = False,
+        apply_extras_as_headers: bool = True,
         **kwargs,
     ):
         self.hook_type = hook_type
@@ -161,6 +163,7 @@ class HTTPConnOp(BaseConnectorOp):
         # default backoff config will be enabled!
         self.backoff_config = backoff_config
         self.apply_basic_auth = apply_basic_auth
+        self.apply_extras_as_headers = apply_extras_as_headers
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
@@ -227,31 +230,38 @@ class HTTPConnOp(BaseConnectorOp):
     def base_url(self) -> str:
         if self.hook_type == "connector.hooks.http_requests_from_env":
             # Base URL guaranteed to NOT have a trailing slash by hook.
-            base_url = self.hook.base_url
+            _base_url = self.hook.base_url
         else:
             raise NotImplementedError()
 
-        return base_url
+        return _base_url
 
     @property
     def username(self) -> str:
         if self.hook_type == "connector.hooks.http_requests_from_env":
-            # Base URL guaranteed to NOT have a trailing slash by hook.
-            username = self.hook.username
+            _username = self.hook.username
         else:
             raise NotImplementedError()
 
-        return username
+        return _username
 
     @property
     def password(self) -> str:
         if self.hook_type == "connector.hooks.http_requests_from_env":
-            # Base URL guaranteed to NOT have a trailing slash by hook.
-            password = self.hook.password
+            _password = self.hook.password
         else:
             raise NotImplementedError()
 
-        return password
+        return _password
+
+    @property
+    def extras(self) -> Dict[str, Any]:
+        if self.hook_type == "connector.hooks.http_requests_from_env":
+            _extras = self.hook.extras
+        else:
+            raise NotImplementedError()
+
+        return _extras
 
     ####################################################################################
     # METHODS
@@ -266,24 +276,30 @@ class HTTPConnOp(BaseConnectorOp):
         accepted_status_codes: Optional[List[int]] = None,
     ):
         """."""
-        if self.apply_basic_auth and requests_kwargs.get("auth", None):
-            logger.info(
-                f"HTTPConnOp.__call_logic: `apply_basic_auth` is True but `auth` "
-                f"kwargs already exists in the user provided config. "
-                f"Overriding `auth` kwarg with username and password."
-            )
-            requests_kwargs = copy.deepcopy(requests_kwargs)
-            requests_kwargs["auth"] = (self.username, self.password)
-
-        elif self.apply_basic_auth:
+        if self.apply_basic_auth:
             logger.info(
                 f"HTTPConnOp.__call_logic: `apply_basic_auth` is True. "
-                f"Applying basic authentication from hook connection information."
+                f"Adding basic authentication from hook connection information."
+                f"If auth are already present in requests_kwargs, then they will "
+                f"take precedence over the auth from hook connection information."
             )
             requests_kwargs = copy.deepcopy(requests_kwargs)
-            requests_kwargs["auth"] = (self.username, self.password)
-        else:
-            raise NotImplementedError()
+            if not requests_kwargs.get("auth", None):
+                requests_kwargs["auth"] = (self.username, self.password)
+
+        if self.apply_extras_as_headers:
+            requests_kwargs = copy.deepcopy(requests_kwargs)
+            logger.info(
+                f"HTTPConnOp.__call_logic: `apply_extras_as_headers` is True. "
+                f"Adding extras as headers from hook connection information. "
+                f"If headers are already present in requests_kwargs, then they will "
+                f"take precedence over the headers from `extras`."
+            )
+            requests_kwargs["headers"] = {
+                **self.extras,
+                # Requests kwargs headers take precedence over extras.
+                **requests_kwargs["headers"],
+            }
 
         response = requests_method(url, **requests_kwargs)
 

@@ -22,6 +22,7 @@ from nr_ops.ops.ops.connector_ops.hooks.http_requests_from_env import (
     HTTPRequestsHookFromEnvConnOp,
 )
 from nr_ops.ops.ops.connector_ops.hooks.python_list import PythonListHookConnOp
+from nr_ops.ops.ops.connector_ops.hooks.python_queue import PythonQueueHookConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.gcp_bigquery import GCPBigQueryConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.gcp_gcs import GCPGCSConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.google_ads import GoogleAdsConnectorOp
@@ -35,6 +36,7 @@ from nr_ops.ops.ops.connector_ops.interfaces.http import HTTPConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.list import ListConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.mysql import MysqlConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.postgres import PostgresConnOp
+from nr_ops.ops.ops.connector_ops.interfaces.queue import QueueConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.s3 import S3ConnOp
 from nr_ops.ops.ops.consumer_ops.dbt.dbt_run import DBTRunConsumerOp
 from nr_ops.ops.ops.consumer_ops.gcp_bigquery.extract_table import GCPBigQueryToGCSOp
@@ -43,9 +45,14 @@ from nr_ops.ops.ops.consumer_ops.gcp_gcs.put_key import GCPGCSPutKeyOp
 from nr_ops.ops.ops.consumer_ops.google_ads.upload_offline_conversion import (
     GoogleAdsUploadOfflineConversionOp,
 )
+from nr_ops.ops.ops.consumer_ops.list.list_put import ListPutConsumerOp
 from nr_ops.ops.ops.consumer_ops.mock import MockConsumerOp
+from nr_ops.ops.ops.consumer_ops.nr_ops.postgres_create_etl_table import (
+    NROpsPostgresCreateETLTableConsumerOp,
+)
 from nr_ops.ops.ops.consumer_ops.pangres.df_to_sql_db import PangresDFToSQLDBOp
 from nr_ops.ops.ops.consumer_ops.put_list import PutListConsumerOp
+from nr_ops.ops.ops.consumer_ops.queue.queue_put import QueuePutConsumerOp
 from nr_ops.ops.ops.consumer_ops.s3.put_key import S3PutKeyOp
 from nr_ops.ops.ops.consumer_ops.shell.shell_run import ShellRunConsumerOp
 from nr_ops.ops.ops.consumer_ops.sql_query import SQLQueryConsumerOp
@@ -62,6 +69,15 @@ from nr_ops.ops.ops.generator_ops.airflow.dagruns.trigger_dagrun import (
     AirflowDagRunTriggerDagRunOp,
 )
 from nr_ops.ops.ops.generator_ops.batch import BatchGeneratorOp
+from nr_ops.ops.ops.generator_ops.bigcom.orders_get_all_orders import (
+    BigComOrdersGetAllOrdersOp,
+)
+from nr_ops.ops.ops.generator_ops.bigcom.products_get_all_product_variants import (
+    BigComProductsGetAllProductVariantsOp,
+)
+from nr_ops.ops.ops.generator_ops.bigcom.products_get_all_products import (
+    BigComProductsGetAllProductsOp,
+)
 from nr_ops.ops.ops.generator_ops.blade.get_token import BladeGetTokenOp
 from nr_ops.ops.ops.generator_ops.blade.orders_list_goodsout import (
     BladeOrdersListGoodsoutOp,
@@ -93,9 +109,9 @@ from nr_ops.ops.ops.generator_ops.eval_expr.eval_expr_conditional import (
 from nr_ops.ops.ops.generator_ops.gcp_gcs.get_key import GCPGCSGetKeyOp
 from nr_ops.ops.ops.generator_ops.gcp_gcs.is_key_exists import GCPGCSIsKeyExistsOp
 from nr_ops.ops.ops.generator_ops.gcp_gcs.list_keys import GCPGCSListKeysOp
-from nr_ops.ops.ops.generator_ops.get_list import GetListGeneratorOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports import GetGAReportsOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports_ga4 import GetGAReportsGA4Op
+from nr_ops.ops.ops.generator_ops.list.list_get import ListGetGeneratorOp
 from nr_ops.ops.ops.generator_ops.mock import MockGeneratorOp
 from nr_ops.ops.ops.generator_ops.pandas.read_generic import PandasReadGenericOp
 from nr_ops.ops.ops.generator_ops.pandas.train_and_test_split import (
@@ -103,6 +119,7 @@ from nr_ops.ops.ops.generator_ops.pandas.train_and_test_split import (
 )
 from nr_ops.ops.ops.generator_ops.pickle.pickle import PickleGeneratorOp
 from nr_ops.ops.ops.generator_ops.pickle.unpickle import UnPickleGeneratorOp
+from nr_ops.ops.ops.generator_ops.queue.queue_get import QueueGetGeneratorOp
 from nr_ops.ops.ops.generator_ops.s3.get_key import S3GetKeyOp
 from nr_ops.ops.ops.generator_ops.s3.list_keys import S3ListKeysOp
 from nr_ops.ops.ops.generator_ops.sleep import SleepGeneratorOp
@@ -117,6 +134,8 @@ from nr_ops.ops.ops.time_step_ops.simple_start_offset import SimpleStartOffsetTi
 from nr_ops.ops.ops.time_step_ops.simple_ts import SimpleTimeStepOp
 
 logger = logging.getLogger(__name__)
+
+
 OP_CLASSES: List[Type[BaseOp]] = [
     # connector_ops (Hooks)
     AirflowGCPHookConnOp,
@@ -128,6 +147,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     AirflowS3HookConnOp,
     HTTPRequestsHookFromEnvConnOp,
     PythonListHookConnOp,
+    PythonQueueHookConnOp,
     # connector_ops (Interfaces)
     GoogleAnalyticsConnOp,
     GoogleAnalyticsGA4ConnOp,
@@ -136,6 +156,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     S3ConnOp,
     HTTPConnOp,
     ListConnOp,
+    QueueConnOp,
     GCPGCSConnOp,
     GCPBigQueryConnOp,
     GoogleAdsConnectorOp,
@@ -151,6 +172,9 @@ OP_CLASSES: List[Type[BaseOp]] = [
     ShellRunConsumerOp,
     DBTRunConsumerOp,
     GoogleAdsUploadOfflineConversionOp,
+    QueuePutConsumerOp,
+    ListPutConsumerOp,
+    NROpsPostgresCreateETLTableConsumerOp,
     # generator_ops
     AirflowDagRunTriggerDagRunOp,
     AirflowDagRunGetDagRunOp,
@@ -174,7 +198,11 @@ OP_CLASSES: List[Type[BaseOp]] = [
     BladeOrdersBulkListTrackingNumbersOp,
     BladeProductsListVariationsOp,
     BladeProductsViewVariationOp,
-    GetListGeneratorOp,
+    ListGetGeneratorOp,
+    QueueGetGeneratorOp,
+    BigComOrdersGetAllOrdersOp,
+    BigComProductsGetAllProductsOp,
+    BigComProductsGetAllProductVariantsOp,
     PandasReadGenericOp,
     PandasTrainTestSplit,
     GCPGCSGetKeyOp,

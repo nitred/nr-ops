@@ -2,9 +2,9 @@
 import json
 import logging
 import os
-from typing import Literal, Optional
+from typing import Any, Dict, Literal, Optional
 
-from pydantic import BaseModel, StrictStr
+from pydantic import BaseModel, Field, StrictStr
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
@@ -43,6 +43,7 @@ class HTTPConnEnvModel(BaseModel):
     host: StrictStr
     login: Optional[StrictStr] = None
     password: Optional[StrictStr] = None
+    extras: Dict[str, Any] = Field(default_factory=dict)
 
     class Config:
         extra = "allow"
@@ -94,10 +95,10 @@ class HTTPRequestsHookFromEnvConnOp(BaseConnectorOp):
     @property
     def base_url(self) -> str:
         """."""
-        base_url = self.conn_model.host
-        if base_url.endswith("/"):
-            base_url = self.conn_model.host[:-1]
-        return base_url
+        _base_url = self.conn_model.host
+        if _base_url.endswith("/"):
+            _base_url = self.conn_model.host[:-1]
+        return _base_url
 
     @property
     def username(self) -> Optional[str]:
@@ -108,3 +109,8 @@ class HTTPRequestsHookFromEnvConnOp(BaseConnectorOp):
     def password(self) -> Optional[str]:
         """."""
         return self.conn_model.password
+
+    @property
+    def extras(self) -> dict:
+        """."""
+        return self.conn_model.extras

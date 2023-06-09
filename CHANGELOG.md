@@ -25,6 +25,10 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.9.1 (2023-06-09)
+* **Breaking Changes**
+  * Bugfix: Added `page >= total_pages` check to `BigComCatalogGetAllBrandsOp`, `BigComCatalogGetAllCategoriesOp`, `BigComCustomersGetAllCustomersOp` to prevent infinite loops.
+
 # Release 0.9.0 (2023-06-09)
 * **New Ops**
   * Generators

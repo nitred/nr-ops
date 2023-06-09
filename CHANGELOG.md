@@ -25,6 +25,18 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.9.0 (2023-06-09)
+* **New Ops**
+  * Generators
+    * BigComOrdersGetAllOrdersOp
+    * BigComOrdersGetAllOrderProductsOp
+    * BigComOrdersGetAllOrderCouponsOp
+    * BigComOrdersGetAllOrderShippingAddressesOp
+    * BigComCustomersGetAllCustomersOp
+    * BigComCatalogGetAllBrandsOp
+    * BigComCatalogGetAllCategoriesOp
+
+
 # Release 0.8.0 (2023-05-22)
 * **New Ops**
   * Connector Hooks

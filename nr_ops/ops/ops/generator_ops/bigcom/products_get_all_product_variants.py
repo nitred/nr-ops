@@ -33,27 +33,12 @@ class BigComProductsGetAllProductVariantsOpConfigModel(BaseOpConfigModel):
     store_hash: StrictStr
     accepted_status_codes: Optional[conlist(int, min_items=1)] = None
     sleep_time_between_pages: int = 5
-    sort_by: Optional[Literal["id"]] = None
     timeout_seconds_per_request: float = 60
     product_id: StrictStr
 
     class Config:
         extra = "forbid"
         arbitrary_types_allowed = False
-
-    @root_validator(pre=False)
-    def validate_mutually_exclusive_optionally_fields(cls, values):
-        """Validate mutually exclusive optional fields."""
-        fields = ["product_id", "product_ids"]
-
-        none_fields = [values.get(field, None) is None for field in fields]
-        if sum(none_fields) != 1:
-            raise ValueError(
-                f"The {fields=} are mutually exclusive. There must be exactly one "
-                f"non-None value provided, instead found {sum(none_fields)} Nones."
-            )
-
-        return values
 
 
 class BigComProductsGetAllProductVariantsOpMetadataModel(BaseOpMetadataModel):
@@ -95,7 +80,6 @@ class BigComProductsGetAllProductVariantsOp(BaseGeneratorOp):
         product_id: str,
         accepted_status_codes: Optional[List[int]] = None,
         sleep_time_between_pages: int = 5,
-        sort_by: Optional[str] = None,
         timeout_seconds_per_request: float = 60,
         **kwargs,
     ):
@@ -106,7 +90,6 @@ class BigComProductsGetAllProductVariantsOp(BaseGeneratorOp):
         self.accepted_status_codes = (
             accepted_status_codes if accepted_status_codes else [200]
         )
-        self.sort_by = sort_by
         self.timeout_seconds_per_request = timeout_seconds_per_request
         self.product_id = product_id
 
@@ -119,9 +102,6 @@ class BigComProductsGetAllProductVariantsOp(BaseGeneratorOp):
     def get_page(self, page: int) -> Tuple[int, Dict[str, Any], Dict[str, Any]]:
         """."""
         params = {}
-        if self.sort_by:
-            params["sort"] = self.sort_by
-
         params["page"] = page
 
         # DOCS: https://bigcommerce-dev-center.netlify.app/docs/rest-catalog/product-variants#get-all-product-variants
@@ -143,9 +123,7 @@ class BigComProductsGetAllProductVariantsOp(BaseGeneratorOp):
                 "timeout": self.timeout_seconds_per_request,
             },
             accepted_status_codes=self.accepted_status_codes,
-            # If status_code = 200, then the return_type is JSON
-            # If status_code = 204, then the return_type is TEXT
-            # Therefore we use text as the default return_type. We will convert to JSON if needed.
+            # v3 API returns JSON always
             return_type="json",
         )
         etl_response_end_ts = str(pd.Timestamp.now(tz="UTC"))
@@ -204,7 +182,7 @@ class BigComProductsGetAllProductVariantsOp(BaseGeneratorOp):
             ]
             final_records.extend(records)
 
-            # Break look if page == total_pages
+            # Break loop if page == total_pages
             # Don't sleep on the last page
             if page == total_pages:
                 logger.info(

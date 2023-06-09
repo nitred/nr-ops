@@ -69,6 +69,24 @@ from nr_ops.ops.ops.generator_ops.airflow.dagruns.trigger_dagrun import (
     AirflowDagRunTriggerDagRunOp,
 )
 from nr_ops.ops.ops.generator_ops.batch import BatchGeneratorOp
+from nr_ops.ops.ops.generator_ops.bigcom.catalog_get_all_brands import (
+    BigComCatalogGetAllBrandsOp,
+)
+from nr_ops.ops.ops.generator_ops.bigcom.catalog_get_all_categories import (
+    BigComCatalogGetAllCategoriesOp,
+)
+from nr_ops.ops.ops.generator_ops.bigcom.customers_get_all_customers import (
+    BigComCustomersGetAllCustomersOp,
+)
+from nr_ops.ops.ops.generator_ops.bigcom.orders_get_all_order_coupons import (
+    BigComOrdersGetAllOrderCouponsOp,
+)
+from nr_ops.ops.ops.generator_ops.bigcom.orders_get_all_order_products import (
+    BigComOrdersGetAllOrderProductsOp,
+)
+from nr_ops.ops.ops.generator_ops.bigcom.orders_get_all_order_shipping_addresses import (
+    BigComOrdersGetAllOrderShippingAddressesOp,
+)
 from nr_ops.ops.ops.generator_ops.bigcom.orders_get_all_orders import (
     BigComOrdersGetAllOrdersOp,
 )
@@ -201,8 +219,14 @@ OP_CLASSES: List[Type[BaseOp]] = [
     ListGetGeneratorOp,
     QueueGetGeneratorOp,
     BigComOrdersGetAllOrdersOp,
+    BigComOrdersGetAllOrderProductsOp,
+    BigComOrdersGetAllOrderCouponsOp,
+    BigComOrdersGetAllOrderShippingAddressesOp,
     BigComProductsGetAllProductsOp,
     BigComProductsGetAllProductVariantsOp,
+    BigComCustomersGetAllCustomersOp,
+    BigComCatalogGetAllBrandsOp,
+    BigComCatalogGetAllCategoriesOp,
     PandasReadGenericOp,
     PandasTrainTestSplit,
     GCPGCSGetKeyOp,

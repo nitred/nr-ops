@@ -200,9 +200,9 @@ class BigComCatalogGetAllBrandsOp(BaseGeneratorOp):
                 )
                 final_records = []
 
-            # Break look if page == total_pages
+            # Break look if page >= total_pages
             # Don't sleep on the last page
-            if page == total_pages:
+            if page >= total_pages:
                 logger.info(
                     f"BigComCatalogGetAllBrandsOp.run: Fetched {total_pages=}. "
                     f"Yielding records."

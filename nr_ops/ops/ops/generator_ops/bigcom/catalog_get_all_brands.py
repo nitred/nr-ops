@@ -5,7 +5,6 @@ import time
 from typing import Any, Dict, Generator, List, Literal, Optional, Tuple
 
 import pandas as pd
-from airflow.jobs import local_task_job
 from pydantic import (
     BaseModel,
     Field,

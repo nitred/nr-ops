@@ -75,6 +75,9 @@ from nr_ops.ops.ops.generator_ops.bigcom.catalog_get_all_brands import (
 from nr_ops.ops.ops.generator_ops.bigcom.catalog_get_all_categories import (
     BigComCatalogGetAllCategoriesOp,
 )
+from nr_ops.ops.ops.generator_ops.bigcom.coupons_get_all_coupons import (
+    BigComCouponsGetAllCouponsOp,
+)
 from nr_ops.ops.ops.generator_ops.bigcom.customers_get_all_customers import (
     BigComCustomersGetAllCustomersOp,
 )
@@ -227,6 +230,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     BigComCustomersGetAllCustomersOp,
     BigComCatalogGetAllBrandsOp,
     BigComCatalogGetAllCategoriesOp,
+    BigComCouponsGetAllCouponsOp,
     PandasReadGenericOp,
     PandasTrainTestSplit,
     GCPGCSGetKeyOp,

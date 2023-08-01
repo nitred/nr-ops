@@ -25,6 +25,13 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.10.0 (2023-08-01)
+* **New Ops**
+  * Generators
+    * BigComCouponsGetAllCouponsOp
+* **Breaking Changes**
+  * bugfix: removed airflow imports from global namespace
+
 # Release 0.9.1 (2023-06-09)
 * **Breaking Changes**
   * Bugfix: Added `page >= total_pages` check to `BigComCatalogGetAllBrandsOp`, `BigComCatalogGetAllCategoriesOp`, `BigComCustomersGetAllCustomersOp` to prevent infinite loops.

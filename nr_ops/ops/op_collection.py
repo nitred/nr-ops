@@ -21,8 +21,12 @@ from nr_ops.ops.ops.connector_ops.hooks.gcp_service_account_from_file import (
 from nr_ops.ops.ops.connector_ops.hooks.http_requests_from_env import (
     HTTPRequestsHookFromEnvConnOp,
 )
+from nr_ops.ops.ops.connector_ops.hooks.python_counter import PythonCounterHookConnOp
+from nr_ops.ops.ops.connector_ops.hooks.python_file import PythonFileHookConnOp
 from nr_ops.ops.ops.connector_ops.hooks.python_list import PythonListHookConnOp
 from nr_ops.ops.ops.connector_ops.hooks.python_queue import PythonQueueHookConnOp
+from nr_ops.ops.ops.connector_ops.interfaces.counter import CounterConnOp
+from nr_ops.ops.ops.connector_ops.interfaces.file import FileConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.gcp_bigquery import GCPBigQueryConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.gcp_gcs import GCPGCSConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.google_ads import GoogleAdsConnectorOp
@@ -38,7 +42,9 @@ from nr_ops.ops.ops.connector_ops.interfaces.mysql import MysqlConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.postgres import PostgresConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.queue import QueueConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.s3 import S3ConnOp
+from nr_ops.ops.ops.consumer_ops.counter.counter_put import CounterPutConsumerOp
 from nr_ops.ops.ops.consumer_ops.dbt.dbt_run import DBTRunConsumerOp
+from nr_ops.ops.ops.consumer_ops.file.file_put import FilePutConsumerOp
 from nr_ops.ops.ops.consumer_ops.gcp_bigquery.extract_table import GCPBigQueryToGCSOp
 from nr_ops.ops.ops.consumer_ops.gcp_gcs.delete_key import GCPGCSDeleteKeyOp
 from nr_ops.ops.ops.consumer_ops.gcp_gcs.put_key import GCPGCSPutKeyOp
@@ -133,6 +139,30 @@ from nr_ops.ops.ops.generator_ops.gcp_gcs.list_keys import GCPGCSListKeysOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports import GetGAReportsOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports_ga4 import GetGAReportsGA4Op
 from nr_ops.ops.ops.generator_ops.list.list_get import ListGetGeneratorOp
+from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_campaign_info import (
+    MailchimpCampaignsGetCampaignInfoOp,
+)
+from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_campaigns import (
+    MailchimpCampaignsGetCampaignsOp,
+)
+from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_links_clicked import (
+    MailchimpCampaignsGetLinksClickedOp,
+)
+from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_links_clicked_members import (
+    MailchimpCampaignsGetLinksClickedMembersOp,
+)
+from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_sent_to import (
+    MailchimpCampaignsGetSentToOp,
+)
+from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_unsubscribed_members import (
+    MailchimpCampaignsGetUnsubscribedMembersOp,
+)
+from nr_ops.ops.ops.generator_ops.mailchimp.lists_get_list_members import (
+    MailchimpListsGetListMembersOp,
+)
+from nr_ops.ops.ops.generator_ops.mailchimp.lists_get_lists import (
+    MailchimpListsGetListsOp,
+)
 from nr_ops.ops.ops.generator_ops.mock import MockGeneratorOp
 from nr_ops.ops.ops.generator_ops.pandas.read_generic import PandasReadGenericOp
 from nr_ops.ops.ops.generator_ops.pandas.train_and_test_split import (
@@ -167,7 +197,9 @@ OP_CLASSES: List[Type[BaseOp]] = [
     GCPServiceAccountFromFileConnOp,
     AirflowS3HookConnOp,
     HTTPRequestsHookFromEnvConnOp,
+    PythonFileHookConnOp,
     PythonListHookConnOp,
+    PythonCounterHookConnOp,
     PythonQueueHookConnOp,
     # connector_ops (Interfaces)
     GoogleAnalyticsConnOp,
@@ -176,7 +208,9 @@ OP_CLASSES: List[Type[BaseOp]] = [
     MysqlConnOp,
     S3ConnOp,
     HTTPConnOp,
+    FileConnOp,
     ListConnOp,
+    CounterConnOp,
     QueueConnOp,
     GCPGCSConnOp,
     GCPBigQueryConnOp,
@@ -193,8 +227,10 @@ OP_CLASSES: List[Type[BaseOp]] = [
     ShellRunConsumerOp,
     DBTRunConsumerOp,
     GoogleAdsUploadOfflineConversionOp,
-    QueuePutConsumerOp,
+    FilePutConsumerOp,
     ListPutConsumerOp,
+    QueuePutConsumerOp,
+    CounterPutConsumerOp,
     NROpsPostgresCreateETLTableConsumerOp,
     # generator_ops
     AirflowDagRunTriggerDagRunOp,
@@ -231,6 +267,14 @@ OP_CLASSES: List[Type[BaseOp]] = [
     BigComCatalogGetAllBrandsOp,
     BigComCatalogGetAllCategoriesOp,
     BigComCouponsGetAllCouponsOp,
+    MailchimpCampaignsGetCampaignsOp,
+    MailchimpCampaignsGetCampaignInfoOp,
+    MailchimpCampaignsGetSentToOp,
+    MailchimpCampaignsGetUnsubscribedMembersOp,
+    MailchimpCampaignsGetLinksClickedOp,
+    MailchimpCampaignsGetLinksClickedMembersOp,
+    MailchimpListsGetListsOp,
+    MailchimpListsGetListMembersOp,
     PandasReadGenericOp,
     PandasTrainTestSplit,
     GCPGCSGetKeyOp,

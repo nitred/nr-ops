@@ -85,3 +85,11 @@ class PythonListHookConnOp(BaseConnectorOp):
     def put_append(self, item):
         """."""
         self._list.append(item)
+
+    def put_extend(self, item):
+        """."""
+        self._list.extend(item)
+
+    def size(self):
+        """."""
+        return len(self._list)

@@ -70,22 +70,21 @@ class ListPutConsumerOp(BaseConsumerOp):
             time_step=time_step, msg=msg, log_prefix="ListPutConsumerOp.run:"
         )
 
-        _list = self.list_conn.get_reference()
         logger.info(
             f"ListPutConsumerOp.run: Putting item of {type(msg.data)=} to list "
-            f"with {self.put_type=}. Current {len(_list)=}"
+            f"with {self.put_type=}. Current {self.list_conn.size()=}"
         )
 
         if self.put_type == "append":
-            _list.append(msg.data)
+            self.list_conn.put_append(msg.data)
         elif self.put_type == "extend":
-            _list.extend(msg.data)
+            self.list_conn.put_extend(msg.data)
         else:
             raise NotImplementedError()
 
         logger.info(
             f"ListPutConsumerOp.run: Done Putting item of {type(msg.data)=} to list "
-            f"with {self.put_type=}. New {len(_list)=}"
+            f"with {self.put_type=}. New {self.list_conn.size()=}"
         )
 
         return OpMsg(

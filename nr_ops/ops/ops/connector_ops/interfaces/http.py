@@ -297,8 +297,8 @@ class HTTPConnOp(BaseConnectorOp):
             )
             requests_kwargs["headers"] = {
                 **self.extras,
-                # Requests kwargs headers take precedence over extras.
-                **requests_kwargs["headers"],
+                # Original requests kwargs headers take precedence over extras if exists
+                **requests_kwargs.get("headers", {}),
             }
 
         response = requests_method(url, **requests_kwargs)

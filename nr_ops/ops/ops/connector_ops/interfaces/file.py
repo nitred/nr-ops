@@ -8,15 +8,15 @@ from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
 from nr_ops.messages.op_msg import OpMsg
 from nr_ops.ops.base import BaseConnectorOp, BaseOpConfigModel
-from nr_ops.ops.ops.connector_ops.hooks.python_list import PythonListHookConnOp
+from nr_ops.ops.ops.connector_ops.hooks.python_file import PythonFileHookConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.base import validate_hook_type_and_config
 
 logger = logging.getLogger(__name__)
 
 
-class ListConnOpConfigModel(BaseOpConfigModel):
+class FileConnOpConfigModel(BaseOpConfigModel):
     hook_type: Literal[
-        "connector.hooks.python.list",
+        "connector.hooks.python.file",
     ]
     hook_config: Dict[StrictStr, Any]
 
@@ -29,7 +29,7 @@ class ListConnOpConfigModel(BaseOpConfigModel):
     )
 
 
-class ListConnOpMetadataModel(BaseOpMetadataModel):
+class FileConnOpMetadataModel(BaseOpMetadataModel):
     pass
 
     class Config:
@@ -37,7 +37,7 @@ class ListConnOpMetadataModel(BaseOpMetadataModel):
         arbitrary_types_allowed = False
 
 
-class ListConnOpAuditModel(BaseOpAuditModel):
+class FileConnOpAuditModel(BaseOpAuditModel):
     pass
 
     class Config:
@@ -45,11 +45,11 @@ class ListConnOpAuditModel(BaseOpAuditModel):
         arbitrary_types_allowed = False
 
 
-class ListConnOp(BaseConnectorOp):
-    OP_TYPE = "connector.list"
-    OP_CONFIG_MODEL = ListConnOpConfigModel
-    OP_METADATA_MODEL = ListConnOpMetadataModel
-    OP_AUDIT_MODEL = ListConnOpAuditModel
+class FileConnOp(BaseConnectorOp):
+    OP_TYPE = "connector.file"
+    OP_CONFIG_MODEL = FileConnOpConfigModel
+    OP_METADATA_MODEL = FileConnOpMetadataModel
+    OP_AUDIT_MODEL = FileConnOpAuditModel
 
     templated_fields = None
 
@@ -63,67 +63,53 @@ class ListConnOp(BaseConnectorOp):
         self.hook_op = OP_COLLECTION[self.hook_type](**self.hook_config)
         self.hook = self.hook_op.run().data
 
-        if self.hook_type == "connector.hooks.python.list":
-            self.hook: PythonListHookConnOp
+        if self.hook_type == "connector.hooks.python.file":
+            self.hook: PythonFileHookConnOp
         else:
             raise NotImplementedError()
 
     def get_reference(self):
         """."""
-        if self.hook_type == "connector.hooks.python.list":
+        if self.hook_type == "connector.hooks.python.file":
             return self.hook.get_reference()
         else:
             raise NotImplementedError()
 
-    def get_reference_and_reinit(self):
+    def get_read(self):
         """."""
-        if self.hook_type == "connector.hooks.python.list":
-            return self.hook.get_reference_and_reinit()
+        if self.hook_type == "connector.hooks.python.file":
+            return self.hook.get_read()
         else:
             raise NotImplementedError()
 
-    def get_deepcopy(self):
+    def put_write(self, item: Any):
         """."""
-        if self.hook_type == "connector.hooks.python.list":
-            return self.hook.get_deepcopy()
+        if self.hook_type == "connector.hooks.python.file":
+            self.hook.put_write(item=item)
         else:
             raise NotImplementedError()
 
-    def put_append(self, item: Any):
+    def put_write_and_flush(self, item: Any):
         """."""
-        if self.hook_type == "connector.hooks.python.list":
-            self.hook.put_append(item=item)
-        else:
-            raise NotImplementedError()
-
-    def put_extend(self, item: Any):
-        """."""
-        if self.hook_type == "connector.hooks.python.list":
-            self.hook.put_extend(item=item)
-        else:
-            raise NotImplementedError()
-
-    def size(self):
-        """."""
-        if self.hook_type == "connector.hooks.python.list":
-            self.hook.size()
+        if self.hook_type == "connector.hooks.python.file":
+            self.hook.put_write_and_flush(item=item)
         else:
             raise NotImplementedError()
 
     def run(self) -> OpMsg:
         """."""
-        logger.info(f"ListConnOp.run: Running")
+        logger.info(f"FileConnOp.run: Running")
 
         # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
-        self.render_fields(time_step=None, msg=None, log_prefix="ListConnOp.run:")
+        self.render_fields(time_step=None, msg=None, log_prefix="FileConnOp.run:")
 
-        if self.hook_type == "connector.hooks.python.list":
+        if self.hook_type == "connector.hooks.python.file":
             pass
         else:
             raise NotImplementedError()
 
         return OpMsg(
             data=self,
-            metadata=ListConnOpMetadataModel(),
-            audit=ListConnOpAuditModel(),
+            metadata=FileConnOpMetadataModel(),
+            audit=FileConnOpAuditModel(),
         )

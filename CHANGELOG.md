@@ -25,6 +25,31 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.11.0 (2023-08-18)
+* **New Ops**
+  * Generators
+    * Added MailchimpCampaignsGetCampaignsOp
+    * Added MailchimpCampaignsGetCampaignInfoOp
+    * Added MailchimpCampaignsGetSentToOp
+    * Added MailchimpCampaignsGetUnsubscribedMembersOp
+    * Added MailchimpCampaignsGetLinksClickedOp
+    * Added MailchimpCampaignsGetLinksClickedMembersOp
+    * Added MailchimpListsGetListsOp
+    * Added MailchimpListsGetListMembersOp
+  * Consumers
+    * Added FilePutConsumerOp
+    * Added CounterPutConsumerOp
+  * Interfaces
+    * Added FileConnOp
+    * Added CounterConnOp
+  * Hooks
+    * Added PythonFileHookConnOp
+    * Added PythonCounterHookConnOp
+* **Non-Breaking Changes**
+  * Updated ListPutConsumerOp to use underlying Interface (ListConnOp) or Hook (PythonListHookConnOp) instead of directly using the Python list object.
+  * Updated ListPutConsumerOp, ListConnOp and PythonListHookConnOp with a new method `.size()` to get the length of the list. 
+
+
 # Release 0.10.0 (2023-08-01)
 * **New Ops**
   * Generators

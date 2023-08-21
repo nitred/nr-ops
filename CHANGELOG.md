@@ -25,6 +25,15 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.12.0 (2023-08-21)
+* **New Ops**
+  * Generators
+    * Added `MailchimpCampaignsGetCampaignReportsOp`
+* **Non-Breaking Changes**
+  * Updated FilePutConsumerOp, FileConnOp and PythonFileHookConnOp with new put types `write_line` and `write_line_and_flush`
+  * Updated all Mailchimp Ops, `remove_links` now also removes `subscribe_url_short` and `subscribe_url_long` fields
+
+
 # Release 0.11.0 (2023-08-18)
 * **New Ops**
   * Generators

@@ -117,9 +117,20 @@ class PythonFileHookConnOp(BaseConnectorOp):
         """."""
         self._file.write(item)
 
+    def put_write_line(self, item):
+        """."""
+        self._file.write(item)
+        self._file.write("\n")
+
     def put_write_and_flush(self, item):
         """."""
         self._file.write(item)
+        self._file.flush()
+
+    def put_write_line_and_flush(self, item):
+        """."""
+        self._file.write(item)
+        self._file.write("\n")
         self._file.flush()
 
     # TODO: Seek

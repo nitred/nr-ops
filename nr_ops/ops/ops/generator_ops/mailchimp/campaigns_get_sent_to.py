@@ -216,6 +216,10 @@ class MailchimpCampaignsGetSentToOp(BaseGeneratorOp):
                         data["archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
                     if "long_archive_url" in data:
                         data["long_archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
+                    if "subscribe_url_short" in data:
+                        data["subscribe_url_short"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
+                    if "subscribe_url_long" in data:
+                        data["subscribe_url_long"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
                     if "_links" in data:
                         data["_links"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
 

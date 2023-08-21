@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 from typing import Any, Dict, Generator, List, Literal, Optional, Tuple
@@ -16,24 +17,23 @@ from nr_ops.ops.ops.connector_ops.interfaces.http import HTTPConnOp
 logger = logging.getLogger(__name__)
 
 
-class MailchimpListsGetListMembersOpConfigModel(BaseOpConfigModel):
+class MailchimpCampaignsGetCampaignReportsOpConfigModel(BaseOpConfigModel):
     http_conn_id: StrictStr
-    campaign_id: StrictStr
-    link_id: StrictStr
     accepted_status_codes: Optional[conlist(int, min_items=1)] = None
     records_per_page: StrictInt
     iterate_over_pages: StrictBool
     sleep_time_between_pages: int = 5
     timeout_seconds_per_request: float = 60
-    remove_links: StrictBool = True
-    remove_pii: StrictBool
+    min_date_sent: Optional[StrictStr] = None
+    max_date_sent: Optional[StrictStr] = None
+    remove_links: bool = True
 
     class Config:
         extra = "forbid"
         arbitrary_types_allowed = False
 
 
-class MailchimpListsGetListMembersOpMetadataModel(BaseOpMetadataModel):
+class MailchimpCampaignsGetCampaignReportsOpMetadataModel(BaseOpMetadataModel):
     current_page: int
     total_pages: int
     total_records: int
@@ -43,7 +43,7 @@ class MailchimpListsGetListMembersOpMetadataModel(BaseOpMetadataModel):
         arbitrary_types_allowed = False
 
 
-class MailchimpListsGetListMembersOpAuditModel(BaseOpAuditModel):
+class MailchimpCampaignsGetCampaignReportsOpAuditModel(BaseOpAuditModel):
     pass
 
     class Config:
@@ -51,43 +51,41 @@ class MailchimpListsGetListMembersOpAuditModel(BaseOpAuditModel):
         arbitrary_types_allowed = False
 
 
-class MailchimpListsGetListMembersOp(BaseGeneratorOp):
+class MailchimpCampaignsGetCampaignReportsOp(BaseGeneratorOp):
     """."""
 
-    OP_TYPE = "generator.mailchimp.lists.get_list_members"
-    OP_CONFIG_MODEL = MailchimpListsGetListMembersOpConfigModel
-    OP_METADATA_MODEL = MailchimpListsGetListMembersOpMetadataModel
-    OP_AUDIT_MODEL = MailchimpListsGetListMembersOpAuditModel
+    OP_TYPE = "generator.mailchimp.campaigns.get_campaign_reports"
+    OP_CONFIG_MODEL = MailchimpCampaignsGetCampaignReportsOpConfigModel
+    OP_METADATA_MODEL = MailchimpCampaignsGetCampaignReportsOpMetadataModel
+    OP_AUDIT_MODEL = MailchimpCampaignsGetCampaignReportsOpAuditModel
 
     templated_fields = None
 
     def __init__(
         self,
         http_conn_id: str,
-        campaign_id: str,
-        link_id: str,
         iterate_over_pages: bool,
         records_per_page: int,
-        remove_pii: bool,
         accepted_status_codes: Optional[List[int]] = None,
         sleep_time_between_pages: int = 5,
         timeout_seconds_per_request: float = 60,
+        min_date_sent: Optional[StrictStr] = None,
+        max_date_sent: Optional[StrictStr] = None,
         remove_links: bool = True,
         **kwargs,
     ):
         """."""
         self.http_conn_id = http_conn_id
-        self.campaign_id = campaign_id
-        self.link_id = link_id
         self.sleep_time_between_pages = sleep_time_between_pages
         self.accepted_status_codes = (
             accepted_status_codes if accepted_status_codes else [200]
         )
         self.records_per_page = records_per_page
         self.timeout_seconds_per_request = timeout_seconds_per_request
+        self.min_date_sent = min_date_sent
+        self.max_date_sent = max_date_sent
         self.iterate_over_pages = iterate_over_pages
         self.remove_links = remove_links
-        self.remove_pii = remove_pii
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
@@ -105,10 +103,16 @@ class MailchimpListsGetListMembersOp(BaseGeneratorOp):
         params["offset"] = offset
         params["count"] = self.records_per_page
 
-        # DOCS: https://mailchimp.com/developer/marketing/api/link-clickers/list-clicked-link-subscribers/
-        url = f"{self.http_conn.base_url}/reports/{self.campaign_id}/click-details/{self.link_id}/members"
+        if self.min_date_sent:
+            params["since_send_time"] = self.min_date_sent
+        if self.max_date_sent:
+            params["before_send_time"] = self.max_date_sent
+
+        # DOCS: https://mailchimp.com/developer/marketing/api/reports/list-campaign-reports/
+        url = f"{self.http_conn.base_url}/reports"
         logger.info(
-            f"MailchimpListsGetListMembersOp.get_page: Fetching {page=} with {url=}"
+            f"MailchimpCampaignsGetCampaignReportsOp.get_page: "
+            f"Fetching {page=} with {url=}"
         )
 
         etl_request_start_ts = str(pd.Timestamp.now(tz="UTC"))
@@ -137,62 +141,41 @@ class MailchimpListsGetListMembersOp(BaseGeneratorOp):
         self, time_step: TimeStep, msg: Optional[OpMsg] = None
     ) -> Generator[OpMsg, None, None]:
         """."""
-        logger.info(f"MailchimpListsGetListMembersOp.run: Running")
+        logger.info(f"MailchimpCampaignsGetCampaignReportsOp.run: Running")
 
         # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
         self.render_fields(
             time_step=time_step,
             msg=msg,
-            log_prefix="MailchimpListsGetListMembersOp.run:",
+            log_prefix="MailchimpCampaignsGetCampaignReportsOp.run:",
         )
 
         final_records = []
         page, total_records, total_pages = 1, 0, None
         while True:
-            logger.info(f"MailchimpListsGetListMembersOp.run: Fetching {page=}.")
+            logger.info(
+                f"MailchimpCampaignsGetCampaignReportsOp.run: Fetching {page=}."
+            )
 
             status_code, output_json, etl_metadata_json = self.get_page(page=page)
-            if len(output_json["members"]) == 0:
+            if len(output_json["reports"]) == 0:
                 logger.info(
-                    f"MailchimpListsGetListMembersOp.run: "
-                    f"Received 0 members records. "
+                    f"MailchimpCampaignsGetCampaignReportsOp.run: "
+                    f"Received 0 reports. "
                     f"No data exists for current {page=}. Stopping the loop and no"
                     f"longer fetching additional pages."
                 )
                 total_pages = page - 1
                 break
 
-            n_records = len(output_json["members"])
+            n_records = len(output_json["reports"])
             total_records += n_records
 
             logger.info(
-                f"MailchimpListsGetListMembersOp.run: "
-                f"Done fetching {page=}. Fetched {n_records=} this request. "
+                f"MailchimpCampaignsGetCampaignReportsOp.run: Done fetching {page=}. "
+                f"Fetched {n_records=} this request. "
                 f"Fetched {total_records=} records so far. "
             )
-
-            if self.remove_pii:
-                logger.info(
-                    f"MailchimpListsGetListMembersOp.run: "
-                    f"Redacting PII from the data."
-                )
-                # Redact PII from the data in place.
-                for record in output_json["members"]:
-                    for key in [
-                        "email_address",
-                        "merge_fields",
-                        "full_name",
-                        "location",
-                        "ip_signup",
-                        "ip_opt",
-                    ]:
-                        if key in record:
-                            record[key] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-
-                logger.info(
-                    f"MailchimpListsGetListMembersOp.run: "
-                    f"Done redacting PII from the data."
-                )
 
             ############################################################################
             # NOTE: Adding `etl_metadata` into response json (output_json).
@@ -207,7 +190,7 @@ class MailchimpListsGetListMembersOp(BaseGeneratorOp):
                     "data": record,
                     "etl_metadata": etl_metadata_json,
                 }
-                for record in output_json["members"]
+                for record in output_json["reports"]
             ]
 
             # Remove links from records
@@ -234,17 +217,17 @@ class MailchimpListsGetListMembersOp(BaseGeneratorOp):
             if self.iterate_over_pages:
                 yield OpMsg(
                     data=final_records,
-                    metadata=MailchimpListsGetListMembersOpMetadataModel(
+                    metadata=MailchimpCampaignsGetCampaignReportsOpMetadataModel(
                         current_page=page,
                         total_pages=-1,
                         total_records=total_records,
                     ),
-                    audit=MailchimpListsGetListMembersOpAuditModel(),
+                    audit=MailchimpCampaignsGetCampaignReportsOpAuditModel(),
                 )
                 final_records = []
 
             logger.info(
-                f"MailchimpListsGetListMembersOp.run: Sleeping for "
+                f"MailchimpCampaignsGetCampaignReportsOp.run: Sleeping for "
                 f"{self.sleep_time_between_pages} seconds between pages. "
                 f"Next page is {page+1}."
             )
@@ -256,23 +239,21 @@ class MailchimpListsGetListMembersOp(BaseGeneratorOp):
         # Only yield records if iterate_over_pages is false.
         if self.iterate_over_pages:
             logger.info(
-                f"MailchimpListsGetListMembersOp.run: "
-                f"{self.iterate_over_pages=}. "
+                f"MailchimpCampaignsGetCampaignReportsOp.run: {self.iterate_over_pages=}. "
                 f"Finished yielding all records, once per page."
             )
 
         else:
             logger.info(
-                f"MailchimpListsGetListMembersOp.run: "
-                f"{self.iterate_over_pages=}. "
+                f"MailchimpCampaignsGetCampaignReportsOp.run: {self.iterate_over_pages=}. "
                 f"Yielding all pages at once now. {len(final_records)=}"
             )
             yield OpMsg(
                 data=final_records,
-                metadata=MailchimpListsGetListMembersOpMetadataModel(
+                metadata=MailchimpCampaignsGetCampaignReportsOpMetadataModel(
                     current_page=page,
                     total_pages=total_pages,
                     total_records=total_records,
                 ),
-                audit=MailchimpListsGetListMembersOpAuditModel(),
+                audit=MailchimpCampaignsGetCampaignReportsOpAuditModel(),
             )

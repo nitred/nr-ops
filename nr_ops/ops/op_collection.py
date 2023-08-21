@@ -142,6 +142,9 @@ from nr_ops.ops.ops.generator_ops.list.list_get import ListGetGeneratorOp
 from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_campaign_info import (
     MailchimpCampaignsGetCampaignInfoOp,
 )
+from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_campaign_reports import (
+    MailchimpCampaignsGetCampaignReportsOp,
+)
 from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_campaigns import (
     MailchimpCampaignsGetCampaignsOp,
 )
@@ -275,6 +278,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     MailchimpCampaignsGetLinksClickedMembersOp,
     MailchimpListsGetListsOp,
     MailchimpListsGetListMembersOp,
+    MailchimpCampaignsGetCampaignReportsOp,
     PandasReadGenericOp,
     PandasTrainTestSplit,
     GCPGCSGetKeyOp,

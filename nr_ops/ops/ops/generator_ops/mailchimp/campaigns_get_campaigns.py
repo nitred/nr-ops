@@ -134,9 +134,9 @@ class MailchimpCampaignsGetCampaignsOp(BaseGeneratorOp):
         if self.max_date_created:
             params["before_create_time"] = self.max_date_created
         if self.min_date_sent:
-            params["since_sent_time"] = self.min_date_sent
+            params["since_send_time"] = self.min_date_sent
         if self.max_date_sent:
-            params["before_sent_time"] = self.max_date_sent
+            params["before_send_time"] = self.max_date_sent
 
         # DOCS: https://mailchimp.com/developer/marketing/api/campaigns/list-campaigns/
         url = f"{self.http_conn.base_url}/campaigns"
@@ -228,6 +228,10 @@ class MailchimpCampaignsGetCampaignsOp(BaseGeneratorOp):
                         data["archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
                     if "long_archive_url" in data:
                         data["long_archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
+                    if "subscribe_url_short" in data:
+                        data["subscribe_url_short"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
+                    if "subscribe_url_long" in data:
+                        data["subscribe_url_long"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
                     if "_links" in data:
                         data["_links"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
 

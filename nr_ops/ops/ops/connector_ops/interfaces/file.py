@@ -89,10 +89,24 @@ class FileConnOp(BaseConnectorOp):
         else:
             raise NotImplementedError()
 
+    def put_write_line(self, item: Any):
+        """."""
+        if self.hook_type == "connector.hooks.python.file":
+            self.hook.put_write_line(item=item)
+        else:
+            raise NotImplementedError()
+
     def put_write_and_flush(self, item: Any):
         """."""
         if self.hook_type == "connector.hooks.python.file":
             self.hook.put_write_and_flush(item=item)
+        else:
+            raise NotImplementedError()
+
+    def put_write_line_and_flush(self, item: Any):
+        """."""
+        if self.hook_type == "connector.hooks.python.file":
+            self.hook.put_write_line_and_flush(item=item)
         else:
             raise NotImplementedError()
 

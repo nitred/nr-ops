@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class FilePutConsumerOpConfigModel(BaseOpConfigModel):
     file_conn_id: StrictStr
-    put_type: Literal["write", "write_and_flush"]
+    put_type: Literal["write", "write_line", "write_and_flush", "write_line_and_flush"]
 
     class Config:
         extra = "forbid"
@@ -48,7 +48,12 @@ class FilePutConsumerOp(BaseConsumerOp):
     templated_fields = None
 
     def __init__(
-        self, file_conn_id: str, put_type: Literal["write", "write_and_flush"], **kwargs
+        self,
+        file_conn_id: str,
+        put_type: Literal[
+            "write", "write_line", "write_and_flush", "write_line_and_flush"
+        ],
+        **kwargs,
     ):
         self.file_conn_id = file_conn_id
         self.put_type = put_type
@@ -77,8 +82,12 @@ class FilePutConsumerOp(BaseConsumerOp):
 
         if self.put_type == "write":
             self.file_conn.put_write(msg.data)
-        if self.put_type == "write_and_flush":
+        elif self.put_type == "write_line":
+            self.file_conn.put_write_line(msg.data)
+        elif self.put_type == "write_and_flush":
             self.file_conn.put_write_and_flush(msg.data)
+        elif self.put_type == "write_line_and_flush":
+            self.file_conn.put_write_line_and_flush(msg.data)
         else:
             raise NotImplementedError()
 

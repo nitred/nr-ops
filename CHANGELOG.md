@@ -25,6 +25,12 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.13.0 (2023-08-22)
+* **New Ops**
+  * Generators
+    * Added `PriceindxDownloadExportPipelineOp`
+
+
 # Release 0.12.0 (2023-08-21)
 * **New Ops**
   * Generators

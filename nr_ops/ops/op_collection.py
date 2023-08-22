@@ -173,6 +173,9 @@ from nr_ops.ops.ops.generator_ops.pandas.train_and_test_split import (
 )
 from nr_ops.ops.ops.generator_ops.pickle.pickle import PickleGeneratorOp
 from nr_ops.ops.ops.generator_ops.pickle.unpickle import UnPickleGeneratorOp
+from nr_ops.ops.ops.generator_ops.priceindx.download_export_pipeline import (
+    PriceindxDownloadExportPipelineOp,
+)
 from nr_ops.ops.ops.generator_ops.queue.queue_get import QueueGetGeneratorOp
 from nr_ops.ops.ops.generator_ops.s3.get_key import S3GetKeyOp
 from nr_ops.ops.ops.generator_ops.s3.list_keys import S3ListKeysOp
@@ -279,6 +282,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     MailchimpListsGetListsOp,
     MailchimpListsGetListMembersOp,
     MailchimpCampaignsGetCampaignReportsOp,
+    PriceindxDownloadExportPipelineOp,
     PandasReadGenericOp,
     PandasTrainTestSplit,
     GCPGCSGetKeyOp,

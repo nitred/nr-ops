@@ -25,6 +25,15 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.14.0 (2023-08-23)
+* **New Ops**
+  * Generators
+    * Added `MailchimpGenericComputeEmailHashesOp` to compute hashes of different types on email address received from the mailchimp API. These hashes can  can be used as identifiers without storing pii.
+    * Added `MailchimpGenericRemovePiiOp` which is a generic op that removes PII from records for all related Mailchimp ops
+    * Added `MailchimpGenericRemoveLinksOp` which is a generic op that removes links/urls from records for all Mailchimp ops
+* **Breaking Changes**
+  * Removed `remove_links` and `remove_pii` as config params across all existing Mailchimp ops and moved functionality to the generic ops i.e. `MailchimpGenericRemovePiiOp` and `MailchimpGenericRemoveLinksOp`
+
 # Release 0.13.0 (2023-08-22)
 * **New Ops**
   * Generators

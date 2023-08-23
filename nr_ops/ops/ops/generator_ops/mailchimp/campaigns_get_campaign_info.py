@@ -22,7 +22,6 @@ class MailchimpCampaignsGetCampaignInfoOpConfigModel(BaseOpConfigModel):
     accepted_status_codes: Optional[conlist(int, min_items=1)] = None
     timeout_seconds_per_request: float = 60
     campaign_id: Optional[StrictStr] = None
-    remove_links: StrictBool = True
 
     class Config:
         extra = "forbid"
@@ -61,7 +60,6 @@ class MailchimpCampaignsGetCampaignInfoOp(BaseGeneratorOp):
         campaign_id: Optional[str] = None,
         accepted_status_codes: Optional[List[int]] = None,
         timeout_seconds_per_request: float = 60,
-        remove_links: bool = True,
         **kwargs,
     ):
         """."""
@@ -71,7 +69,6 @@ class MailchimpCampaignsGetCampaignInfoOp(BaseGeneratorOp):
             accepted_status_codes if accepted_status_codes else [200]
         )
         self.timeout_seconds_per_request = timeout_seconds_per_request
-        self.remove_links = remove_links
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
@@ -160,18 +157,6 @@ class MailchimpCampaignsGetCampaignInfoOp(BaseGeneratorOp):
                     "etl_metadata": etl_metadata_json,
                 }
             ]
-
-            # Remove links from records
-            # NOTE: Links can cause issues with deduplication.
-            if self.remove_links:
-                for record in records:
-                    data = record["data"]
-                    if "archive_url" in data:
-                        data["archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "long_archive_url" in data:
-                        data["long_archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "_links" in data:
-                        data["_links"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
 
             final_records.extend(records)
 

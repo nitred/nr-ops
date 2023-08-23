@@ -40,7 +40,6 @@ class MailchimpCampaignsGetCampaignsOpConfigModel(BaseOpConfigModel):
             "DESC",
         ]
     ] = None
-    remove_links: bool = True
 
     class Config:
         extra = "forbid"
@@ -89,7 +88,6 @@ class MailchimpCampaignsGetCampaignsOp(BaseGeneratorOp):
         max_date_created: Optional[StrictStr] = None,
         min_date_sent: Optional[StrictStr] = None,
         max_date_sent: Optional[StrictStr] = None,
-        remove_links: bool = True,
         **kwargs,
     ):
         """."""
@@ -107,7 +105,6 @@ class MailchimpCampaignsGetCampaignsOp(BaseGeneratorOp):
         self.min_date_sent = min_date_sent
         self.max_date_sent = max_date_sent
         self.iterate_over_pages = iterate_over_pages
-        self.remove_links = remove_links
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
@@ -218,22 +215,6 @@ class MailchimpCampaignsGetCampaignsOp(BaseGeneratorOp):
                 }
                 for record in output_json["campaigns"]
             ]
-
-            # Remove links from records
-            # NOTE: Links can cause issues with deduplication.
-            if self.remove_links:
-                for record in records:
-                    data = record["data"]
-                    if "archive_url" in data:
-                        data["archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "long_archive_url" in data:
-                        data["long_archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "subscribe_url_short" in data:
-                        data["subscribe_url_short"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "subscribe_url_long" in data:
-                        data["subscribe_url_long"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "_links" in data:
-                        data["_links"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
 
             final_records.extend(records)
 

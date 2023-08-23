@@ -25,7 +25,6 @@ class MailchimpCampaignsGetLinksClickedOpConfigModel(BaseOpConfigModel):
     iterate_over_pages: StrictBool
     sleep_time_between_pages: int = 5
     timeout_seconds_per_request: float = 60
-    remove_links: StrictBool = True
 
     class Config:
         extra = "forbid"
@@ -69,7 +68,6 @@ class MailchimpCampaignsGetLinksClickedOp(BaseGeneratorOp):
         accepted_status_codes: Optional[List[int]] = None,
         sleep_time_between_pages: int = 5,
         timeout_seconds_per_request: float = 60,
-        remove_links: bool = True,
         **kwargs,
     ):
         """."""
@@ -82,7 +80,6 @@ class MailchimpCampaignsGetLinksClickedOp(BaseGeneratorOp):
         self.records_per_page = records_per_page
         self.timeout_seconds_per_request = timeout_seconds_per_request
         self.iterate_over_pages = iterate_over_pages
-        self.remove_links = remove_links
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
@@ -182,22 +179,6 @@ class MailchimpCampaignsGetLinksClickedOp(BaseGeneratorOp):
                 }
                 for record in output_json["urls_clicked"]
             ]
-
-            # Remove links from records
-            # NOTE: Links can cause issues with deduplication.
-            if self.remove_links:
-                for record in records:
-                    data = record["data"]
-                    if "archive_url" in data:
-                        data["archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "long_archive_url" in data:
-                        data["long_archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "subscribe_url_short" in data:
-                        data["subscribe_url_short"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "subscribe_url_long" in data:
-                        data["subscribe_url_long"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "_links" in data:
-                        data["_links"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
 
             final_records.extend(records)
 

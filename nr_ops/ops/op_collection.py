@@ -160,6 +160,15 @@ from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_sent_to import (
 from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_unsubscribed_members import (
     MailchimpCampaignsGetUnsubscribedMembersOp,
 )
+from nr_ops.ops.ops.generator_ops.mailchimp.generic_compute_email_hashes import (
+    MailchimpGenericComputeEmailHashesOp,
+)
+from nr_ops.ops.ops.generator_ops.mailchimp.generic_remove_links import (
+    MailchimpGenericRemoveLinksOp,
+)
+from nr_ops.ops.ops.generator_ops.mailchimp.generic_remove_pii import (
+    MailchimpGenericRemovePiiOp,
+)
 from nr_ops.ops.ops.generator_ops.mailchimp.lists_get_list_members import (
     MailchimpListsGetListMembersOp,
 )
@@ -282,6 +291,9 @@ OP_CLASSES: List[Type[BaseOp]] = [
     MailchimpListsGetListsOp,
     MailchimpListsGetListMembersOp,
     MailchimpCampaignsGetCampaignReportsOp,
+    MailchimpGenericComputeEmailHashesOp,
+    MailchimpGenericRemovePiiOp,
+    MailchimpGenericRemoveLinksOp,
     PriceindxDownloadExportPipelineOp,
     PandasReadGenericOp,
     PandasTrainTestSplit,

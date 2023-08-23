@@ -25,8 +25,6 @@ class MailchimpListsGetListMembersOpConfigModel(BaseOpConfigModel):
     iterate_over_pages: StrictBool
     sleep_time_between_pages: int = 5
     timeout_seconds_per_request: float = 60
-    remove_links: StrictBool = True
-    remove_pii: StrictBool
 
     class Config:
         extra = "forbid"
@@ -68,11 +66,9 @@ class MailchimpListsGetListMembersOp(BaseGeneratorOp):
         link_id: str,
         iterate_over_pages: bool,
         records_per_page: int,
-        remove_pii: bool,
         accepted_status_codes: Optional[List[int]] = None,
         sleep_time_between_pages: int = 5,
         timeout_seconds_per_request: float = 60,
-        remove_links: bool = True,
         **kwargs,
     ):
         """."""
@@ -86,8 +82,6 @@ class MailchimpListsGetListMembersOp(BaseGeneratorOp):
         self.records_per_page = records_per_page
         self.timeout_seconds_per_request = timeout_seconds_per_request
         self.iterate_over_pages = iterate_over_pages
-        self.remove_links = remove_links
-        self.remove_pii = remove_pii
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
@@ -171,29 +165,6 @@ class MailchimpListsGetListMembersOp(BaseGeneratorOp):
                 f"Fetched {total_records=} records so far. "
             )
 
-            if self.remove_pii:
-                logger.info(
-                    f"MailchimpListsGetListMembersOp.run: "
-                    f"Redacting PII from the data."
-                )
-                # Redact PII from the data in place.
-                for record in output_json["members"]:
-                    for key in [
-                        "email_address",
-                        "merge_fields",
-                        "full_name",
-                        "location",
-                        "ip_signup",
-                        "ip_opt",
-                    ]:
-                        if key in record:
-                            record[key] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-
-                logger.info(
-                    f"MailchimpListsGetListMembersOp.run: "
-                    f"Done redacting PII from the data."
-                )
-
             ############################################################################
             # NOTE: Adding `etl_metadata` into response json (output_json).
             # * This is to add some metadata about the ETL process, primarily some
@@ -209,22 +180,6 @@ class MailchimpListsGetListMembersOp(BaseGeneratorOp):
                 }
                 for record in output_json["members"]
             ]
-
-            # Remove links from records
-            # NOTE: Links can cause issues with deduplication.
-            if self.remove_links:
-                for record in records:
-                    data = record["data"]
-                    if "archive_url" in data:
-                        data["archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "long_archive_url" in data:
-                        data["long_archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "subscribe_url_short" in data:
-                        data["subscribe_url_short"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "subscribe_url_long" in data:
-                        data["subscribe_url_long"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "_links" in data:
-                        data["_links"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
 
             final_records.extend(records)
 

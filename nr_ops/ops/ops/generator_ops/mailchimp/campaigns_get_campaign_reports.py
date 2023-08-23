@@ -26,7 +26,6 @@ class MailchimpCampaignsGetCampaignReportsOpConfigModel(BaseOpConfigModel):
     timeout_seconds_per_request: float = 60
     min_date_sent: Optional[StrictStr] = None
     max_date_sent: Optional[StrictStr] = None
-    remove_links: bool = True
 
     class Config:
         extra = "forbid"
@@ -71,7 +70,6 @@ class MailchimpCampaignsGetCampaignReportsOp(BaseGeneratorOp):
         timeout_seconds_per_request: float = 60,
         min_date_sent: Optional[StrictStr] = None,
         max_date_sent: Optional[StrictStr] = None,
-        remove_links: bool = True,
         **kwargs,
     ):
         """."""
@@ -85,7 +83,6 @@ class MailchimpCampaignsGetCampaignReportsOp(BaseGeneratorOp):
         self.min_date_sent = min_date_sent
         self.max_date_sent = max_date_sent
         self.iterate_over_pages = iterate_over_pages
-        self.remove_links = remove_links
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
@@ -192,22 +189,6 @@ class MailchimpCampaignsGetCampaignReportsOp(BaseGeneratorOp):
                 }
                 for record in output_json["reports"]
             ]
-
-            # Remove links from records
-            # NOTE: Links can cause issues with deduplication.
-            if self.remove_links:
-                for record in records:
-                    data = record["data"]
-                    if "archive_url" in data:
-                        data["archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "long_archive_url" in data:
-                        data["long_archive_url"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "subscribe_url_short" in data:
-                        data["subscribe_url_short"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "subscribe_url_long" in data:
-                        data["subscribe_url_long"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-                    if "_links" in data:
-                        data["_links"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
 
             final_records.extend(records)
 

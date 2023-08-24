@@ -18,13 +18,14 @@ logger = logging.getLogger(__name__)
 
 class MailchimpListsGetListMembersOpConfigModel(BaseOpConfigModel):
     http_conn_id: StrictStr
-    campaign_id: StrictStr
-    link_id: StrictStr
+    list_id: StrictStr
     accepted_status_codes: Optional[conlist(int, min_items=1)] = None
     records_per_page: StrictInt
     iterate_over_pages: StrictBool
     sleep_time_between_pages: int = 5
     timeout_seconds_per_request: float = 60
+    min_date_modified: Optional[StrictStr] = None
+    max_date_modified: Optional[StrictStr] = None
 
     class Config:
         extra = "forbid"
@@ -62,19 +63,19 @@ class MailchimpListsGetListMembersOp(BaseGeneratorOp):
     def __init__(
         self,
         http_conn_id: str,
-        campaign_id: str,
-        link_id: str,
+        list_id: str,
         iterate_over_pages: bool,
         records_per_page: int,
         accepted_status_codes: Optional[List[int]] = None,
         sleep_time_between_pages: int = 5,
         timeout_seconds_per_request: float = 60,
+        min_date_modified: Optional[str] = None,
+        max_date_modified: Optional[str] = None,
         **kwargs,
     ):
         """."""
         self.http_conn_id = http_conn_id
-        self.campaign_id = campaign_id
-        self.link_id = link_id
+        self.list_id = list_id
         self.sleep_time_between_pages = sleep_time_between_pages
         self.accepted_status_codes = (
             accepted_status_codes if accepted_status_codes else [200]
@@ -82,6 +83,8 @@ class MailchimpListsGetListMembersOp(BaseGeneratorOp):
         self.records_per_page = records_per_page
         self.timeout_seconds_per_request = timeout_seconds_per_request
         self.iterate_over_pages = iterate_over_pages
+        self.min_date_modified = min_date_modified
+        self.max_date_modified = max_date_modified
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
@@ -99,8 +102,13 @@ class MailchimpListsGetListMembersOp(BaseGeneratorOp):
         params["offset"] = offset
         params["count"] = self.records_per_page
 
-        # DOCS: https://mailchimp.com/developer/marketing/api/link-clickers/list-clicked-link-subscribers/
-        url = f"{self.http_conn.base_url}/reports/{self.campaign_id}/click-details/{self.link_id}/members"
+        if self.min_date_modified:
+            params["since_last_changed"] = self.min_date_modified
+        if self.max_date_modified:
+            params["before_last_changed"] = self.max_date_modified
+
+        # DOCS: https://mailchimp.com/developer/marketing/api/list-members/list-members-info/
+        url = f"{self.http_conn.base_url}/lists/{self.list_id}/members"
         logger.info(
             f"MailchimpListsGetListMembersOp.get_page: Fetching {page=} with {url=}"
         )

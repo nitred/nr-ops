@@ -25,6 +25,13 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.14.1 (2023-08-24)
+* **Breaking Changes**
+  * Bugfix: Implemented `MailchimpListsGetListMembersOp` correctly. The previous version was completely incorrect.
+* **Non-breaking Changes**
+  * Removed unused argument `include_total_contacts` from `MailchimpListsGetListsOp
+
+
 # Release 0.14.0 (2023-08-23)
 * **New Ops**
   * Generators
@@ -59,7 +66,7 @@ We follow semantic versioning.
     * Added MailchimpCampaignsGetLinksClickedOp
     * Added MailchimpCampaignsGetLinksClickedMembersOp
     * Added MailchimpListsGetListsOp
-    * Added MailchimpListsGetListMembersOp
+    * ~~Added MailchimpListsGetListMembersOp~~ (2023-08-24: Do not use this Op before release 0.14.1)
   * Consumers
     * Added FilePutConsumerOp
     * Added CounterPutConsumerOp
@@ -72,7 +79,8 @@ We follow semantic versioning.
 * **Non-Breaking Changes**
   * Updated ListPutConsumerOp to use underlying Interface (ListConnOp) or Hook (PythonListHookConnOp) instead of directly using the Python list object.
   * Updated ListPutConsumerOp, ListConnOp and PythonListHookConnOp with a new method `.size()` to get the length of the list. 
-
+* **Notes from future**
+  * **2023-08-24: Bugfix**: Implemented `MailchimpListsGetListMembersOp` correctly. Do not use this op before release 0.14.1. This op in this version is merely a copy-pasted version of another Op.
 
 # Release 0.10.0 (2023-08-01)
 * **New Ops**

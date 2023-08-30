@@ -18,7 +18,7 @@ from nr_ops.ops.base import BaseGeneratorOp, BaseOpConfigModel
 logger = logging.getLogger(__name__)
 
 
-class MailchimpGenericComputeEmailHashesOpConfigModel(BaseOpConfigModel):
+class BigcomGenericComputeEmailHashesOpConfigModel(BaseOpConfigModel):
     compute_hash_md5: StrictBool = True
     compute_hash_uuid5: StrictBool = True
     compute_hash_sha256: StrictBool = True
@@ -42,7 +42,7 @@ class MailchimpGenericComputeEmailHashesOpConfigModel(BaseOpConfigModel):
         arbitrary_types_allowed = False
 
 
-class MailchimpGenericComputeEmailHashesOpMetadataModel(BaseOpMetadataModel):
+class BigcomGenericComputeEmailHashesOpMetadataModel(BaseOpMetadataModel):
     pass
 
     class Config:
@@ -50,7 +50,7 @@ class MailchimpGenericComputeEmailHashesOpMetadataModel(BaseOpMetadataModel):
         arbitrary_types_allowed = False
 
 
-class MailchimpGenericComputeEmailHashesOpAuditModel(BaseOpAuditModel):
+class BigcomGenericComputeEmailHashesOpAuditModel(BaseOpAuditModel):
     pass
 
     class Config:
@@ -58,13 +58,13 @@ class MailchimpGenericComputeEmailHashesOpAuditModel(BaseOpAuditModel):
         arbitrary_types_allowed = False
 
 
-class MailchimpGenericComputeEmailHashesOp(BaseGeneratorOp):
+class BigcomGenericComputeEmailHashesOp(BaseGeneratorOp):
     """."""
 
-    OP_TYPE = "generator.mailchimp.generic.compute_email_hashes"
-    OP_CONFIG_MODEL = MailchimpGenericComputeEmailHashesOpConfigModel
-    OP_METADATA_MODEL = MailchimpGenericComputeEmailHashesOpMetadataModel
-    OP_AUDIT_MODEL = MailchimpGenericComputeEmailHashesOpAuditModel
+    OP_TYPE = "generator.bigcom.generic.compute_email_hashes"
+    OP_CONFIG_MODEL = BigcomGenericComputeEmailHashesOpConfigModel
+    OP_METADATA_MODEL = BigcomGenericComputeEmailHashesOpMetadataModel
+    OP_AUDIT_MODEL = BigcomGenericComputeEmailHashesOpAuditModel
 
     templated_fields = None
 
@@ -91,13 +91,13 @@ class MailchimpGenericComputeEmailHashesOp(BaseGeneratorOp):
         self, time_step: TimeStep, msg: Optional[OpMsg] = None
     ) -> Generator[OpMsg, None, None]:
         """."""
-        logger.info(f"MailchimpGenericComputeEmailHashesOp.run: Running")
+        logger.info(f"BigcomGenericComputeEmailHashesOp.run: Running")
 
         # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
         self.render_fields(
             time_step=time_step,
             msg=msg,
-            log_prefix="MailchimpGenericComputeEmailHashesOp.run:",
+            log_prefix="BigcomGenericComputeEmailHashesOp.run:",
         )
 
         input_records = msg.data
@@ -107,46 +107,61 @@ class MailchimpGenericComputeEmailHashesOp(BaseGeneratorOp):
 
         final_records = []
 
-        for record in input_records:
-            if "email_address" not in record["data"]:
-                raise NotImplementedError(
-                    "Input records must have an email_address field."
-                )
-
-            data = record["data"]
-
+        def compute_hashes_and_update_in_place(payload: Dict[str, Any], email_key: str):
             if self.compute_hash_md5:
-                data["email_address_hash_md5"] = hashlib.md5(
-                    data["email_address"].encode("utf-8")
+                payload["email_address_hash_md5"] = hashlib.md5(
+                    payload[email_key].encode("utf-8")
                 ).hexdigest()
 
             if self.compute_hash_uuid5:
-                data["email_address_hash_uuid5"] = str(
-                    uuid.uuid5(uuid.NAMESPACE_URL, data["email_address"])
+                payload["email_address_hash_uuid5"] = str(
+                    uuid.uuid5(uuid.NAMESPACE_URL, payload[email_key])
                 )
 
             if self.compute_hash_sha256:
-                data["email_address_hash_sha256"] = hashlib.sha256(
-                    data["email_address"].encode("utf-8")
+                payload["email_address_hash_sha256"] = hashlib.sha256(
+                    payload[email_key].encode("utf-8")
                 ).hexdigest()
 
             if self.compute_hash_sha512:
-                data["email_address_hash_sha512"] = hashlib.sha512(
-                    data["email_address"].encode("utf-8")
+                payload["email_address_hash_sha512"] = hashlib.sha512(
+                    payload[email_key].encode("utf-8")
                 ).hexdigest()
 
             if self.compute_hash_bcrypt:
                 wf = self.bcrypt_salt_work_factor
-                data[f"email_address_hash_bcrypt_wf_{wf}"] = bcrypt.hashpw(
-                    data["email_address"].encode("utf-8"),
+                payload[f"email_address_hash_bcrypt_wf_{wf}"] = bcrypt.hashpw(
+                    payload[email_key].encode("utf-8"),
                     bcrypt.gensalt(rounds=self.bcrypt_salt_work_factor),
                 ).decode("utf-8")
+
+        for record in input_records:
+            email_exists = False
+
+            if "email" in record["data"]:
+                email_exists = True
+                compute_hashes_and_update_in_place(
+                    payload=record["data"], email_key="email"
+                )
+
+            if "billing_address" in record["data"]:
+                if "email" in record["data"]["billing_address"]:
+                    email_exists = True
+                    compute_hashes_and_update_in_place(
+                        payload=record["data"]["billing_address"], email_key="email"
+                    )
+
+            if not email_exists:
+                raise ValueError(
+                    f"BigcomGenericComputeEmailHashesOp.run: "
+                    f"No email address found in record."
+                )
 
             # record['data'] has been updated in place.
             final_records.append(record)
 
         yield OpMsg(
             data=final_records,
-            metadata=MailchimpGenericComputeEmailHashesOpMetadataModel(),
-            audit=MailchimpGenericComputeEmailHashesOpAuditModel(),
+            metadata=BigcomGenericComputeEmailHashesOpMetadataModel(),
+            audit=BigcomGenericComputeEmailHashesOpAuditModel(),
         )

@@ -87,6 +87,12 @@ from nr_ops.ops.ops.generator_ops.bigcom.coupons_get_all_coupons import (
 from nr_ops.ops.ops.generator_ops.bigcom.customers_get_all_customers import (
     BigComCustomersGetAllCustomersOp,
 )
+from nr_ops.ops.ops.generator_ops.bigcom.generic_compute_email_hashes import (
+    BigcomGenericComputeEmailHashesOp,
+)
+from nr_ops.ops.ops.generator_ops.bigcom.generic_remove_pii import (
+    BigcomGenericRemovePiiOp,
+)
 from nr_ops.ops.ops.generator_ops.bigcom.orders_get_all_order_coupons import (
     BigComOrdersGetAllOrderCouponsOp,
 )
@@ -282,6 +288,8 @@ OP_CLASSES: List[Type[BaseOp]] = [
     BigComCatalogGetAllBrandsOp,
     BigComCatalogGetAllCategoriesOp,
     BigComCouponsGetAllCouponsOp,
+    BigcomGenericComputeEmailHashesOp,
+    BigcomGenericRemovePiiOp,
     MailchimpCampaignsGetCampaignsOp,
     MailchimpCampaignsGetCampaignInfoOp,
     MailchimpCampaignsGetSentToOp,

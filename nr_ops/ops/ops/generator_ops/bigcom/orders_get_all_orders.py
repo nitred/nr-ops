@@ -22,7 +22,6 @@ class BigComOrdersGetAllOrdersOpConfigModel(BaseOpConfigModel):
     store_hash: StrictStr
     accepted_status_codes: Optional[conlist(int, min_items=1)] = None
     sleep_time_between_pages: int = 5
-    remove_pii: bool = True
     sort_by: Optional[
         Literal[
             "date_created:asc",
@@ -82,7 +81,6 @@ class BigComOrdersGetAllOrdersOp(BaseGeneratorOp):
         iterate_over_pages: bool,
         accepted_status_codes: Optional[List[int]] = None,
         sleep_time_between_pages: int = 5,
-        remove_pii: bool = True,
         sort_by: Optional[str] = None,
         timeout_seconds_per_request: float = 60,
         min_date_modified: Optional[StrictStr] = None,
@@ -98,7 +96,6 @@ class BigComOrdersGetAllOrdersOp(BaseGeneratorOp):
         self.accepted_status_codes = (
             accepted_status_codes if accepted_status_codes else [200, 204]
         )
-        self.remove_pii = remove_pii
         self.sort_by = sort_by
         self.timeout_seconds_per_request = timeout_seconds_per_request
         self.min_date_modified = min_date_modified
@@ -198,27 +195,6 @@ class BigComOrdersGetAllOrdersOp(BaseGeneratorOp):
                 f"Fetched {n_records=} this request. "
                 f"Fetched {total_records=} records so far. "
             )
-
-            if self.remove_pii:
-                logger.info(
-                    f"BigComOrdersGetAllOrdersOp.run: Redacting PII from the data."
-                )
-                # Redact PII from the data in place.
-                for order in output_json:
-                    for key in [
-                        "first_name",
-                        "last_name",
-                        "email",
-                        "phone",
-                        "company",
-                        "street_1",
-                        "street_2",
-                    ]:
-                        order["billing_address"][key] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-
-                logger.info(
-                    f"BigComOrdersGetAllOrdersOp.run: Done redacting PII from the data."
-                )
 
             ############################################################################
             # NOTE: Adding `etl_metadata` into response json (output_json).

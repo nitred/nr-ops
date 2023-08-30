@@ -24,7 +24,6 @@ class BigComOrdersGetAllOrderShippingAddressesOpConfigModel(BaseOpConfigModel):
     sleep_time_between_pages: int = 5
     timeout_seconds_per_request: float = 60
     order_id: StrictStr
-    remove_pii: StrictBool
 
     class Config:
         extra = "forbid"
@@ -68,7 +67,6 @@ class BigComOrdersGetAllOrderShippingAddressesOp(BaseGeneratorOp):
         http_conn_id: str,
         store_hash: str,
         order_id: str,
-        remove_pii: bool,
         accepted_status_codes: Optional[List[int]] = None,
         sleep_time_between_pages: int = 5,
         timeout_seconds_per_request: float = 60,
@@ -83,7 +81,6 @@ class BigComOrdersGetAllOrderShippingAddressesOp(BaseGeneratorOp):
         )
         self.timeout_seconds_per_request = timeout_seconds_per_request
         self.order_id = order_id
-        self.remove_pii = remove_pii
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
@@ -169,28 +166,6 @@ class BigComOrdersGetAllOrderShippingAddressesOp(BaseGeneratorOp):
                 f"Fetched {n_records=} this request. "
                 f"Fetched {total_records=} records so far. "
             )
-
-            if self.remove_pii:
-                logger.info(
-                    f"BigComOrdersGetAllOrdersOp.run: Redacting PII from the data."
-                )
-
-                # Redact PII from the data in place.
-                for order in output_json:
-                    for key in [
-                        "first_name",
-                        "last_name",
-                        "email",
-                        "phone",
-                        "company",
-                        "street_1",
-                        "street_2",
-                    ]:
-                        order[key] = "REDACTED_BY_ETL_BEFORE_STORAGE"
-
-                logger.info(
-                    f"BigComOrdersGetAllOrdersOp.run: Done redacting PII from the data."
-                )
 
             ############################################################################
             # NOTE: Adding `etl_metadata` into response json (output_json).

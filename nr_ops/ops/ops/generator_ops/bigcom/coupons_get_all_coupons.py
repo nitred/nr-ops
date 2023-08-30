@@ -22,7 +22,6 @@ class BigComCouponsGetAllCouponsOpConfigModel(BaseOpConfigModel):
     store_hash: StrictStr
     accepted_status_codes: Optional[conlist(int, min_items=1)] = None
     sleep_time_between_pages: int = 5
-    remove_pii: bool = True
     timeout_seconds_per_request: float = 60
     iterate_over_pages: StrictBool
 
@@ -66,7 +65,6 @@ class BigComCouponsGetAllCouponsOp(BaseGeneratorOp):
         iterate_over_pages: bool,
         accepted_status_codes: Optional[List[int]] = None,
         sleep_time_between_pages: int = 5,
-        remove_pii: bool = True,
         timeout_seconds_per_request: float = 60,
         **kwargs,
     ):
@@ -77,7 +75,6 @@ class BigComCouponsGetAllCouponsOp(BaseGeneratorOp):
         self.accepted_status_codes = (
             accepted_status_codes if accepted_status_codes else [200, 204]
         )
-        self.remove_pii = remove_pii
         self.timeout_seconds_per_request = timeout_seconds_per_request
         self.iterate_over_pages = iterate_over_pages
 

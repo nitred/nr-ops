@@ -2,18 +2,16 @@
 https://googleapis.github.io/google-api-python-client/docs/dyn/analyticsreporting_v4.html
 """
 import logging
-from typing import Any, Dict, Generator, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
-import google
 from google.analytics.data_v1beta.types import (
     DateRange,
     Dimension,
-    DimensionHeader,
     Metric,
     RunReportRequest,
     RunReportResponse,
 )
-from pydantic import BaseModel, StrictStr, conlist, root_validator
+from pydantic import StrictStr, root_validator
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
@@ -172,7 +170,7 @@ class GoogleAnalyticsGA4ConnOp(BaseConnectorOp):
         elif self.hook_type == "connector.hooks.gcp_service_account_from_file":
             # Type annotate for pycharm/mypy/autocomplete
             from google.analytics.data_v1beta import BetaAnalyticsDataClient
-            from google.api_core.client_options import ClientOptions, from_dict
+            from google.api_core.client_options import ClientOptions
 
             from nr_ops.ops.ops.connector_ops.hooks.gcp_service_account_from_file import (
                 GCPServiceAccountFromFileConnOp,
@@ -184,7 +182,6 @@ class GoogleAnalyticsGA4ConnOp(BaseConnectorOp):
 
         elif self.hook_type == "connector.hooks.gcp_service_account_from_env":
             from google.analytics.data_v1beta import BetaAnalyticsDataClient
-            from google.api_core.client_options import ClientOptions, from_dict
             from oauth2client.service_account import ServiceAccountCredentials
 
             credentials: ServiceAccountCredentials = self.hook.credentials

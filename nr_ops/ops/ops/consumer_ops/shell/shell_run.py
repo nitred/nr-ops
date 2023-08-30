@@ -2,7 +2,7 @@ import logging
 import os
 import subprocess
 import time
-from typing import Generator, List, Optional
+from typing import List, Optional
 
 from pydantic import StrictBool, StrictInt, StrictStr, conlist
 

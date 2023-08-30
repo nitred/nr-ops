@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, Generator, List, Optional
+from typing import Dict, Generator, List, Optional
 
 from pydantic import StrictStr, conlist
 
@@ -9,9 +9,6 @@ from nr_ops.messages.op_msg import OpMsg
 from nr_ops.messages.time_step import TimeStep
 from nr_ops.ops.base import BaseGeneratorOp, BaseOpConfigModel
 from nr_ops.ops.op_manager import get_global_op_manager
-from nr_ops.ops.ops.connector_ops.interfaces.google_analytics import (
-    GoogleAnalyticsConnOp,
-)
 from nr_ops.ops.ops.connector_ops.interfaces.google_analytics_ga4 import (
     GoogleAnalyticsGA4ConnOp,
 )

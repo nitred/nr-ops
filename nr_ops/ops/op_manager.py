@@ -2,9 +2,8 @@ import logging
 import os
 from typing import Any, Dict, List, Optional
 
-from nr_ops.messages.op_metadata import BaseOpMetadataModel
 from nr_ops.messages.op_msg import OpMsg
-from nr_ops.ops.base import BaseConnectorOp, BaseOp
+from nr_ops.ops.base import BaseConnectorOp
 from nr_ops.ops.op import Op
 
 logger = logging.getLogger(__name__)

@@ -1,5 +1,4 @@
 import logging
-from collections import Counter
 from typing import Literal, Union
 
 from pydantic import StrictStr

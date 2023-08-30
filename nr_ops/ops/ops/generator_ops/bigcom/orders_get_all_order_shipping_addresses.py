@@ -4,7 +4,7 @@ import time
 from typing import Any, Dict, Generator, List, Optional, Tuple
 
 import pandas as pd
-from pydantic import StrictBool, StrictStr, conlist
+from pydantic import StrictStr, conlist
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel

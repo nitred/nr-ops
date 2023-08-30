@@ -1,9 +1,7 @@
 import argparse
-import base64
 import logging
 import traceback
 from logging.config import dictConfig
-from typing import Optional
 
 import ruamel.yaml
 

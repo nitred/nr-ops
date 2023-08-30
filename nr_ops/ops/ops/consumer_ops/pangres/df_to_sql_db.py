@@ -1,8 +1,8 @@
 import logging
-from typing import Any, Dict, Generator, List, Literal, Optional, Union
+from typing import Any, Dict, Literal, Optional
 
 import pangres as pg
-from pydantic import BaseModel, StrictBool, StrictInt, StrictStr, conlist
+from pydantic import BaseModel, StrictBool, StrictInt, StrictStr
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
@@ -10,9 +10,6 @@ from nr_ops.messages.op_msg import OpMsg
 from nr_ops.messages.time_step import TimeStep
 from nr_ops.ops.base import BaseConsumerOp, BaseOpConfigModel
 from nr_ops.ops.op_manager import get_global_op_manager
-from nr_ops.ops.ops.connector_ops.interfaces.google_analytics import (
-    GoogleAnalyticsConnOp,
-)
 from nr_ops.ops.ops.connector_ops.interfaces.postgres import PostgresConnOp
 from nr_ops.utils.sqlalchemy.dtype_lookup import lookup_sqlalchemy_dtype
 

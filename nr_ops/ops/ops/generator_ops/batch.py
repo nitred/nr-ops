@@ -1,14 +1,14 @@
 import itertools
 import logging
-from typing import Generator, Literal, Optional, Union
+from typing import Generator, Optional
 
-from pydantic import StrictBool, StrictInt, StrictStr
+from pydantic import StrictInt
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
 from nr_ops.messages.op_msg import OpMsg
 from nr_ops.messages.time_step import TimeStep
-from nr_ops.ops.base import BaseConsumerOp, BaseGeneratorOp, BaseOpConfigModel
+from nr_ops.ops.base import BaseGeneratorOp, BaseOpConfigModel
 
 logger = logging.getLogger(__name__)
 

@@ -1,12 +1,8 @@
 """."""
 import json
 import logging
-import os
 from collections import Counter
-from typing import Dict, List, Literal, Optional
-
-from numpy.ma import copy
-from pydantic import BaseModel, StrictStr
+from typing import Dict, List
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel

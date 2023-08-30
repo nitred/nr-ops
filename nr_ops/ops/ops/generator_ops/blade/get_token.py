@@ -1,9 +1,8 @@
 import logging
-import re
-from typing import Any, Dict, Generator, List, Literal, Optional
+from typing import Any, Dict, Generator, List, Optional
 
 import pandas as pd
-from pydantic import BaseModel, StrictStr, conlist, validator
+from pydantic import BaseModel, StrictStr, conlist
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
@@ -11,9 +10,6 @@ from nr_ops.messages.op_msg import OpMsg
 from nr_ops.messages.time_step import TimeStep
 from nr_ops.ops.base import BaseGeneratorOp, BaseOpConfigModel
 from nr_ops.ops.op_manager import get_global_op_manager
-from nr_ops.ops.ops.connector_ops.interfaces.google_analytics import (
-    GoogleAnalyticsConnOp,
-)
 from nr_ops.ops.ops.connector_ops.interfaces.http import HTTPConnOp
 
 logger = logging.getLogger(__name__)

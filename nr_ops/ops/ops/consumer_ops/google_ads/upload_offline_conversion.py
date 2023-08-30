@@ -1,9 +1,7 @@
 import logging
-from typing import Any, Dict, Generator, List, Optional
+from typing import Optional
 
-from google.ads.googleads.client import GoogleAdsClient
-from google.ads.googleads.errors import GoogleAdsException
-from pydantic import StrictStr, conlist
+from pydantic import StrictStr
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
@@ -12,12 +10,6 @@ from nr_ops.messages.time_step import TimeStep
 from nr_ops.ops.base import BaseConsumerOp, BaseOpConfigModel
 from nr_ops.ops.op_manager import get_global_op_manager
 from nr_ops.ops.ops.connector_ops.interfaces.google_ads import GoogleAdsConnectorOp
-from nr_ops.ops.ops.connector_ops.interfaces.google_analytics import (
-    GoogleAnalyticsConnOp,
-)
-from nr_ops.ops.ops.connector_ops.interfaces.google_analytics_ga4 import (
-    GoogleAnalyticsGA4ConnOp,
-)
 
 logger = logging.getLogger(__name__)
 

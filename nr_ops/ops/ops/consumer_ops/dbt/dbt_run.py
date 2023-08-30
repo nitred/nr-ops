@@ -1,7 +1,7 @@
 import json
 import logging
 import pathlib
-from typing import Any, Dict, Generator, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field, StrictBool, StrictInt, StrictStr, conlist
 

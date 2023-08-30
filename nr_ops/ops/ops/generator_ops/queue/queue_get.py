@@ -1,16 +1,15 @@
 import logging
 import queue
-from typing import Generator, Literal, Optional, Union
+from typing import Generator, Optional, Union
 
-from pydantic import StrictBool, StrictStr
+from pydantic import StrictStr
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
 from nr_ops.messages.op_msg import OpMsg
 from nr_ops.messages.time_step import TimeStep
-from nr_ops.ops.base import BaseConsumerOp, BaseGeneratorOp, BaseOpConfigModel
+from nr_ops.ops.base import BaseGeneratorOp, BaseOpConfigModel
 from nr_ops.ops.op_manager import get_global_op_manager
-from nr_ops.ops.ops.connector_ops.interfaces.list import ListConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.queue import QueueConnOp
 
 logger = logging.getLogger(__name__)

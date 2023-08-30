@@ -25,6 +25,18 @@ We follow semantic versioning.
   * ...
 ```
 
+
+# Release 0.15.0 (2023-08-30)
+* **New Ops**
+  * Generators
+    * Added `BigcomGenericComputeEmailHashesOp` to compute hashes of different types on email address received from the Bigcom API. These hashes can  can be used as identifiers without storing pii.
+    * Added `BigcomGenericRemovePiiOp` which is a generic op that removes PII from records for all related Bigcom ops
+* **Breaking Changes**
+  * Removed `remove_pii` as config params across all existing Bigcom ops and moved functionality to the generic ops i.e. `BigcomGenericRemovePiiOp`
+  * Removed `yield_only_email_data` as config params from MailchimpGenericComputeEmailHashesOp.
+* **Non-breaking Changes**
+  * Optimized and removed unnecessary imports.
+
 # Release 0.14.1 (2023-08-24)
 * **Breaking Changes**
   * Bugfix: Implemented `MailchimpListsGetListMembersOp` correctly. The previous version was completely incorrect.

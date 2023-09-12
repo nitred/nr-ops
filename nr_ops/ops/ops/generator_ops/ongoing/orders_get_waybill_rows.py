@@ -17,18 +17,18 @@ from nr_ops.ops.ops.connector_ops.interfaces.http import HTTPConnOp
 logger = logging.getLogger(__name__)
 
 
-class MailchimpCampaignsGetCampaignInfoOpConfigModel(BaseOpConfigModel):
+class OngoingOrdersRESTGetWayBillRowsOpConfigModel(BaseOpConfigModel):
     http_conn_id: StrictStr
     accepted_status_codes: Optional[conlist(int, min_items=1)] = None
     timeout_seconds_per_request: float = 60
-    campaign_id: Optional[StrictStr] = None
+    order_id: Optional[StrictStr] = None
 
     class Config:
         extra = "forbid"
         arbitrary_types_allowed = False
 
 
-class MailchimpCampaignsGetCampaignInfoOpMetadataModel(BaseOpMetadataModel):
+class OngoingOrdersRESTGetWayBillRowsOpMetadataModel(BaseOpMetadataModel):
     pass
 
     class Config:
@@ -36,7 +36,7 @@ class MailchimpCampaignsGetCampaignInfoOpMetadataModel(BaseOpMetadataModel):
         arbitrary_types_allowed = False
 
 
-class MailchimpCampaignsGetCampaignInfoOpAuditModel(BaseOpAuditModel):
+class OngoingOrdersRESTGetWayBillRowsOpAuditModel(BaseOpAuditModel):
     pass
 
     class Config:
@@ -44,27 +44,27 @@ class MailchimpCampaignsGetCampaignInfoOpAuditModel(BaseOpAuditModel):
         arbitrary_types_allowed = False
 
 
-class MailchimpCampaignsGetCampaignInfoOp(BaseGeneratorOp):
+class OngoingOrdersRESTGetWayBillRowsOp(BaseGeneratorOp):
     """."""
 
-    OP_TYPE = "generator.mailchimp.campaigns.get_campaign_info"
-    OP_CONFIG_MODEL = MailchimpCampaignsGetCampaignInfoOpConfigModel
-    OP_METADATA_MODEL = MailchimpCampaignsGetCampaignInfoOpMetadataModel
-    OP_AUDIT_MODEL = MailchimpCampaignsGetCampaignInfoOpAuditModel
+    OP_TYPE = "generator.ongoing.orders.rest_get_way_bill_rows"
+    OP_CONFIG_MODEL = OngoingOrdersRESTGetWayBillRowsOpConfigModel
+    OP_METADATA_MODEL = OngoingOrdersRESTGetWayBillRowsOpMetadataModel
+    OP_AUDIT_MODEL = OngoingOrdersRESTGetWayBillRowsOpAuditModel
 
     templated_fields = None
 
     def __init__(
         self,
         http_conn_id: str,
-        campaign_id: Optional[str] = None,
+        order_id: Optional[str] = None,
         accepted_status_codes: Optional[List[int]] = None,
         timeout_seconds_per_request: float = 60,
         **kwargs,
     ):
         """."""
         self.http_conn_id = http_conn_id
-        self.campaign_id = campaign_id
+        self.order_id = order_id
         self.accepted_status_codes = (
             accepted_status_codes if accepted_status_codes else [200]
         )
@@ -76,15 +76,15 @@ class MailchimpCampaignsGetCampaignInfoOp(BaseGeneratorOp):
 
         self.http_conn: HTTPConnOp = op_manager.get_connector(op_id=self.http_conn_id)
 
-    def get_page(self, campaign_id: str) -> Tuple[int, Dict[str, Any], Dict[str, Any]]:
+    def get_page(self, order_id: str) -> Tuple[int, Dict[str, Any], Dict[str, Any]]:
         """."""
         params = {}
 
-        # DOCS: https://mailchimp.com/developer/marketing/api/campaigns/get-campaign-info/
-        url = f"{self.http_conn.base_url}/campaigns/{campaign_id}"
+        # DOCS: https://developer.ongoingwarehouse.com/REST/v1/index.html#/Orders/Orders_GetWayBillRows
+        url = f"{self.http_conn.base_url}/api/v1/orders/{order_id}/wayBillRows"
         logger.info(
-            f"MailchimpCampaignsGetCampaignInfoOp.get_page: Fetching campaign info for "
-            f"{campaign_id=} with {url=}"
+            f"OngoingOrdersRESTGetWayBillRowsOp.get_page: Fetching campaign info for "
+            f"{order_id=} with {url=}"
         )
 
         etl_request_start_ts = pd.Timestamp.now(tz="UTC").isoformat()
@@ -113,34 +113,34 @@ class MailchimpCampaignsGetCampaignInfoOp(BaseGeneratorOp):
         self, time_step: TimeStep, msg: Optional[OpMsg] = None
     ) -> Generator[OpMsg, None, None]:
         """."""
-        logger.info(f"MailchimpCampaignsGetCampaignInfoOp.run: Running")
+        logger.info(f"OngoingOrdersRESTGetWayBillRowsOp.run: Running")
 
         # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
         self.render_fields(
             time_step=time_step,
             msg=msg,
-            log_prefix="MailchimpCampaignsGetCampaignInfoOp.run:",
+            log_prefix="OngoingOrdersRESTGetWayBillRowsOp.run:",
         )
 
-        if self.campaign_id:
-            campaign_ids = [self.campaign_id]
+        if self.order_id:
+            order_ids = [self.order_id]
         else:
             raise NotImplementedError()
 
         final_records = []
-        for campaign_id in campaign_ids:
+        for order_id in order_ids:
             logger.info(
-                f"MailchimpCampaignsGetCampaignInfoOp.run: Fetching campaign info for "
-                f"{campaign_id=}."
+                f"OngoingOrdersRESTGetWayBillRowsOp.run: Fetching way bill rows for "
+                f"{order_id=}."
             )
 
             status_code, output_json, etl_metadata_json = self.get_page(
-                campaign_id=campaign_id
+                order_id=order_id
             )
 
             logger.info(
-                f"MailchimpCampaignsGetCampaignInfoOp.run: Done fetching campaign "
-                f"info for {campaign_id=}."
+                f"OngoingOrdersRESTGetWayBillRowsOp.run: Done fetching way bill rows "
+                f"for {order_id=}."
             )
 
             ############################################################################
@@ -153,15 +153,20 @@ class MailchimpCampaignsGetCampaignInfoOp(BaseGeneratorOp):
             etl_metadata_json["time_step"] = time_step.to_json_dict()
             records = [
                 {
-                    "data": output_json,
+                    "data": record,
                     "etl_metadata": etl_metadata_json,
                 }
+                for record in output_json
             ]
+
+            # ADD `order_id` to each record since it is missing in the response.
+            for record in records:  # type: dict
+                record["data"]["orderId"] = order_id
 
             final_records.extend(records)
 
         yield OpMsg(
             data=final_records,
-            metadata=MailchimpCampaignsGetCampaignInfoOpMetadataModel(),
-            audit=MailchimpCampaignsGetCampaignInfoOpAuditModel(),
+            metadata=OngoingOrdersRESTGetWayBillRowsOpMetadataModel(),
+            audit=OngoingOrdersRESTGetWayBillRowsOpAuditModel(),
         )

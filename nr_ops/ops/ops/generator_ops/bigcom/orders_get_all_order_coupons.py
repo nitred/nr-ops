@@ -99,7 +99,7 @@ class BigComOrdersGetAllOrderCouponsOp(BaseGeneratorOp):
             f"BigComOrdersGetAllOrderCouponsOp.get_page: Fetching {page=} with {url=}"
         )
 
-        etl_request_start_ts = str(pd.Timestamp.now(tz="UTC"))
+        etl_request_start_ts = pd.Timestamp.now(tz="UTC").isoformat()
         status_code, output_text = self.http_conn.call(
             method="get",
             url=url,
@@ -117,7 +117,7 @@ class BigComOrdersGetAllOrderCouponsOp(BaseGeneratorOp):
             # 204 - TEXT
             return_type="text",
         )
-        etl_response_end_ts = str(pd.Timestamp.now(tz="UTC"))
+        etl_response_end_ts = pd.Timestamp.now(tz="UTC").isoformat()
 
         etl_metadata_json = {
             "etl_request_start_ts": etl_request_start_ts,

@@ -92,7 +92,7 @@ class BladeOrdersListMetadataOp(BaseGeneratorOp):
             f"BladeOrdersListMetadataOp.get_page: Fetching {goodsout_id=} with {url=}"
         )
 
-        etl_request_start_ts = str(pd.Timestamp.now(tz="UTC"))
+        etl_request_start_ts = pd.Timestamp.now(tz="UTC").isoformat()
         status_code, output_json = self.http_conn.call(
             method="get",
             url=url,
@@ -106,7 +106,7 @@ class BladeOrdersListMetadataOp(BaseGeneratorOp):
             accepted_status_codes=self.accepted_status_codes,
             return_type="json",
         )
-        etl_response_end_ts = str(pd.Timestamp.now(tz="UTC"))
+        etl_response_end_ts = pd.Timestamp.now(tz="UTC").isoformat()
 
         etl_metadata_json = {
             "etl_request_start_ts": etl_request_start_ts,

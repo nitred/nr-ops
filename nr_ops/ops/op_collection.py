@@ -182,6 +182,15 @@ from nr_ops.ops.ops.generator_ops.mailchimp.lists_get_lists import (
     MailchimpListsGetListsOp,
 )
 from nr_ops.ops.ops.generator_ops.mock import MockGeneratorOp
+from nr_ops.ops.ops.generator_ops.ongoing.generic_remove_pii import (
+    OngoingGenericRemovePiiOp,
+)
+from nr_ops.ops.ops.generator_ops.ongoing.orders_get_all_orders import (
+    OngoingOrdersSOAPGetAllOrdersOp,
+)
+from nr_ops.ops.ops.generator_ops.ongoing.orders_get_waybill_rows import (
+    OngoingOrdersRESTGetWayBillRowsOp,
+)
 from nr_ops.ops.ops.generator_ops.pandas.read_generic import PandasReadGenericOp
 from nr_ops.ops.ops.generator_ops.pandas.train_and_test_split import (
     PandasTrainTestSplit,
@@ -194,6 +203,7 @@ from nr_ops.ops.ops.generator_ops.priceindx.download_export_pipeline import (
 from nr_ops.ops.ops.generator_ops.queue.queue_get import QueueGetGeneratorOp
 from nr_ops.ops.ops.generator_ops.s3.get_key import S3GetKeyOp
 from nr_ops.ops.ops.generator_ops.s3.list_keys import S3ListKeysOp
+from nr_ops.ops.ops.generator_ops.skip_empty_input import SkipEmptyInputGeneratorOp
 from nr_ops.ops.ops.generator_ops.sleep import SleepGeneratorOp
 from nr_ops.ops.ops.generator_ops.sql_query import SQLQueryGeneratorOp
 from nr_ops.ops.ops.group_ops.op_chain import OpChainGroupOp
@@ -265,6 +275,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     GetGAReportsGA4Op,
     MockGeneratorOp,
     SleepGeneratorOp,
+    SkipEmptyInputGeneratorOp,
     S3ListKeysOp,
     S3GetKeyOp,
     CompressOp,
@@ -302,6 +313,9 @@ OP_CLASSES: List[Type[BaseOp]] = [
     MailchimpGenericComputeEmailHashesOp,
     MailchimpGenericRemovePiiOp,
     MailchimpGenericRemoveLinksOp,
+    OngoingOrdersSOAPGetAllOrdersOp,
+    OngoingOrdersRESTGetWayBillRowsOp,
+    OngoingGenericRemovePiiOp,
     PriceindxDownloadExportPipelineOp,
     PandasReadGenericOp,
     PandasTrainTestSplit,

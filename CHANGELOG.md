@@ -25,6 +25,17 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.16.0 (2023-09-12)
+* **New Ops**
+  * Generators
+    * Added `OngoingOrdersSOAPGetAllOrdersOp` which uses SOAP
+    * Added `OngoingOrdersRESTGetWayBillRowsOp` which uses REST
+    * Added `OngoingGenericRemovePiiOp`
+    * Added `SkipEmptyInputGeneratorOp`
+* **Breaking Changes**
+  * Changed all occurrences of `str(pd.Timestamp.now(tz="UTC"))` to `pd.Timestamp.now(tz="UTC").isoformat()`
+  * Added `zeep==4.2.1` dependency to handle SOAP requests. Updated poetry.lock accordingly.
+
 
 # Release 0.15.0 (2023-08-30)
 * **New Ops**

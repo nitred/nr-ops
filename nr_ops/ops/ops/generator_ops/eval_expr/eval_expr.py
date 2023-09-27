@@ -25,6 +25,8 @@ class EvalExprOpConfigModel(BaseOpConfigModel):
     op_manager_var_name: Optional[StrictStr] = None
     log_output: StrictBool = False
     iterate_over_output: StrictBool = False
+    msg_data_var_name: Optional[StrictStr] = None
+    msg_metadata_var_name: Optional[StrictStr] = None
 
     class Config:
         extra = "forbid"
@@ -64,6 +66,8 @@ class EvalExprOp(BaseGeneratorOp):
         op_manager_var_name: Optional[str] = None,
         log_output: StrictBool = False,
         iterate_over_output: StrictBool = False,
+        msg_data_var_name: Optional[str] = None,
+        msg_metadata_var_name: Optional[str] = None,
         **kwargs,
     ):
         self.expr = expr
@@ -77,6 +81,8 @@ class EvalExprOp(BaseGeneratorOp):
         )
         self.log_output = log_output
         self.iterate_over_output = iterate_over_output
+        self.msg_data_var_name = msg_data_var_name
+        self.msg_metadata_var_name = msg_metadata_var_name
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
@@ -94,15 +100,21 @@ class EvalExprOp(BaseGeneratorOp):
         logger.info(f"EvalExprOp.run: Evaluating expression: {self.expr=}")
 
         start = time.time()
-        output = eval(
-            self.expr,
-            {
-                **EVAL_GLOBALS,
-                self.msg_var_name: msg,
-                self.time_step_var_name: time_step,
-                self.op_manager_var_name: self.op_manager,
-            },
-        )
+
+        params = {
+            **EVAL_GLOBALS,
+            self.msg_var_name: msg,
+            self.time_step_var_name: time_step,
+            self.op_manager_var_name: self.op_manager,
+        }
+
+        if self.msg_data_var_name:
+            params[self.msg_data_var_name] = msg.data
+
+        if self.msg_metadata_var_name:
+            params[self.msg_metadata_var_name] = msg.metadata
+
+        output = eval(self.expr, params)
         end = time.time()
 
         logger.info(

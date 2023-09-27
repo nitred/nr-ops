@@ -94,6 +94,12 @@ class MailchimpGenericRemovePiiOp(BaseGeneratorOp):
                 if key in record["data"]:
                     record["data"][key] = "REDACTED_BY_ETL_BEFORE_STORAGE"
 
+            # email_activity
+            if "activity" in record["data"]:
+                for item in record["data"]["activity"]:
+                    if "ip" in item:
+                        item["ip"] = "REDACTED_BY_ETL_BEFORE_STORAGE"
+
             # record['data'] has been updated in place.
             final_records.append(record)
 

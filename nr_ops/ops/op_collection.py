@@ -154,6 +154,9 @@ from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_campaign_reports impor
 from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_campaigns import (
     MailchimpCampaignsGetCampaignsOp,
 )
+from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_email_activity import (
+    MailchimpCampaignsGetEmailActivityOp,
+)
 from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_links_clicked import (
     MailchimpCampaignsGetLinksClickedOp,
 )
@@ -310,6 +313,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     MailchimpListsGetListsOp,
     MailchimpListsGetListMembersOp,
     MailchimpCampaignsGetCampaignReportsOp,
+    MailchimpCampaignsGetEmailActivityOp,
     MailchimpGenericComputeEmailHashesOp,
     MailchimpGenericRemovePiiOp,
     MailchimpGenericRemoveLinksOp,

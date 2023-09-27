@@ -25,6 +25,15 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.17.0 (2023-09-27)
+* **New Ops**
+  * Generators
+    * Added `MailchimpCampaignsGetEmailActivityOp`
+* **Non-breaking Changes**
+  * Updated `MailchimpGenericRemovePiiOp` to remove email_address and ip from email activity records.
+  * Updated `EvalExprOp` with new arguments `msg_data_var_name` and `msg_metadata_var_name`.
+
+
 # Release 0.16.0 (2023-09-12)
 * **New Ops**
   * Generators

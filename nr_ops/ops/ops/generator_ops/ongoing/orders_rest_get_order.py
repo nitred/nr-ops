@@ -17,7 +17,7 @@ from nr_ops.ops.ops.connector_ops.interfaces.http import HTTPConnOp
 logger = logging.getLogger(__name__)
 
 
-class OngoingOrdersRESTGetWayBillRowsOpConfigModel(BaseOpConfigModel):
+class OngoingOrdersRESTGetOrderOpConfigModel(BaseOpConfigModel):
     http_conn_id: StrictStr
     accepted_status_codes: Optional[conlist(int, min_items=1)] = None
     timeout_seconds_per_request: float = 60
@@ -28,7 +28,7 @@ class OngoingOrdersRESTGetWayBillRowsOpConfigModel(BaseOpConfigModel):
         arbitrary_types_allowed = False
 
 
-class OngoingOrdersRESTGetWayBillRowsOpMetadataModel(BaseOpMetadataModel):
+class OngoingOrdersRESTGetOrderOpMetadataModel(BaseOpMetadataModel):
     pass
 
     class Config:
@@ -36,7 +36,7 @@ class OngoingOrdersRESTGetWayBillRowsOpMetadataModel(BaseOpMetadataModel):
         arbitrary_types_allowed = False
 
 
-class OngoingOrdersRESTGetWayBillRowsOpAuditModel(BaseOpAuditModel):
+class OngoingOrdersRESTGetOrderOpAuditModel(BaseOpAuditModel):
     pass
 
     class Config:
@@ -44,13 +44,13 @@ class OngoingOrdersRESTGetWayBillRowsOpAuditModel(BaseOpAuditModel):
         arbitrary_types_allowed = False
 
 
-class OngoingOrdersRESTGetWayBillRowsOp(BaseGeneratorOp):
+class OngoingOrdersRESTGetOrderOp(BaseGeneratorOp):
     """."""
 
-    OP_TYPE = "generator.ongoing.orders.rest_get_way_bill_rows"
-    OP_CONFIG_MODEL = OngoingOrdersRESTGetWayBillRowsOpConfigModel
-    OP_METADATA_MODEL = OngoingOrdersRESTGetWayBillRowsOpMetadataModel
-    OP_AUDIT_MODEL = OngoingOrdersRESTGetWayBillRowsOpAuditModel
+    OP_TYPE = "generator.ongoing.orders.rest_get_order"
+    OP_CONFIG_MODEL = OngoingOrdersRESTGetOrderOpConfigModel
+    OP_METADATA_MODEL = OngoingOrdersRESTGetOrderOpMetadataModel
+    OP_AUDIT_MODEL = OngoingOrdersRESTGetOrderOpAuditModel
 
     templated_fields = None
 
@@ -80,10 +80,10 @@ class OngoingOrdersRESTGetWayBillRowsOp(BaseGeneratorOp):
         """."""
         params = {}
 
-        # DOCS: https://developer.ongoingwarehouse.com/REST/v1/index.html#/Orders/Orders_GetWayBillRows
-        url = f"{self.http_conn.base_url}/api/v1/orders/{order_id}/wayBillRows"
+        # DOCS: https://developer.ongoingwarehouse.com/REST/v1/index.html#/Orders/Orders_Get
+        url = f"{self.http_conn.base_url}/api/v1/orders/{order_id}"
         logger.info(
-            f"OngoingOrdersRESTGetWayBillRowsOp.get_page: Fetching campaign info for "
+            f"OngoingOrdersRESTGetOrderOp.get_page: Fetching order for "
             f"{order_id=} with {url=}"
         )
 
@@ -113,13 +113,13 @@ class OngoingOrdersRESTGetWayBillRowsOp(BaseGeneratorOp):
         self, time_step: TimeStep, msg: Optional[OpMsg] = None
     ) -> Generator[OpMsg, None, None]:
         """."""
-        logger.info(f"OngoingOrdersRESTGetWayBillRowsOp.run: Running")
+        logger.info(f"OngoingOrdersRESTGetOrderOp.run: Running")
 
         # RENDERS AND UPDATES THE TEMPLATED FIELDS INPLACE
         self.render_fields(
             time_step=time_step,
             msg=msg,
-            log_prefix="OngoingOrdersRESTGetWayBillRowsOp.run:",
+            log_prefix="OngoingOrdersRESTGetOrderOp.run:",
         )
 
         if self.order_id:
@@ -130,8 +130,7 @@ class OngoingOrdersRESTGetWayBillRowsOp(BaseGeneratorOp):
         final_records = []
         for order_id in order_ids:
             logger.info(
-                f"OngoingOrdersRESTGetWayBillRowsOp.run: Fetching way bill rows for "
-                f"{order_id=}."
+                f"OngoingOrdersRESTGetOrderOp.run: Fetching order for {order_id=}."
             )
 
             status_code, output_json, etl_metadata_json = self.get_page(
@@ -139,7 +138,7 @@ class OngoingOrdersRESTGetWayBillRowsOp(BaseGeneratorOp):
             )
 
             logger.info(
-                f"OngoingOrdersRESTGetWayBillRowsOp.run: Done fetching way bill rows "
+                f"OngoingOrdersRESTGetOrderOp.run: Done fetching order "
                 f"for {order_id=}."
             )
 
@@ -153,20 +152,15 @@ class OngoingOrdersRESTGetWayBillRowsOp(BaseGeneratorOp):
             etl_metadata_json["time_step"] = time_step.to_json_dict()
             records = [
                 {
-                    "data": record,
+                    "data": output_json,
                     "etl_metadata": etl_metadata_json,
                 }
-                for record in output_json
             ]
-
-            # ADD `order_id` to each record since it is missing in the response.
-            for record in records:  # type: dict
-                record["data"]["orderId"] = order_id
 
             final_records.extend(records)
 
         yield OpMsg(
             data=final_records,
-            metadata=OngoingOrdersRESTGetWayBillRowsOpMetadataModel(),
-            audit=OngoingOrdersRESTGetWayBillRowsOpAuditModel(),
+            metadata=OngoingOrdersRESTGetOrderOpMetadataModel(),
+            audit=OngoingOrdersRESTGetOrderOpAuditModel(),
         )

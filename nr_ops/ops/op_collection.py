@@ -188,11 +188,17 @@ from nr_ops.ops.ops.generator_ops.mock import MockGeneratorOp
 from nr_ops.ops.ops.generator_ops.ongoing.generic_remove_pii import (
     OngoingGenericRemovePiiOp,
 )
-from nr_ops.ops.ops.generator_ops.ongoing.orders_get_all_orders import (
-    OngoingOrdersSOAPGetAllOrdersOp,
+from nr_ops.ops.ops.generator_ops.ongoing.orders_rest_get_all_orders import (
+    OngoingOrdersRESTGetAllOrdersOp,
 )
-from nr_ops.ops.ops.generator_ops.ongoing.orders_get_waybill_rows import (
+from nr_ops.ops.ops.generator_ops.ongoing.orders_rest_get_order import (
+    OngoingOrdersRESTGetOrderOp,
+)
+from nr_ops.ops.ops.generator_ops.ongoing.orders_rest_get_waybill_rows import (
     OngoingOrdersRESTGetWayBillRowsOp,
+)
+from nr_ops.ops.ops.generator_ops.ongoing.orders_soap_get_all_orders import (
+    OngoingOrdersSOAPGetAllOrdersOp,
 )
 from nr_ops.ops.ops.generator_ops.pandas.read_generic import PandasReadGenericOp
 from nr_ops.ops.ops.generator_ops.pandas.train_and_test_split import (
@@ -319,6 +325,8 @@ OP_CLASSES: List[Type[BaseOp]] = [
     MailchimpGenericRemoveLinksOp,
     OngoingOrdersSOAPGetAllOrdersOp,
     OngoingOrdersRESTGetWayBillRowsOp,
+    OngoingOrdersRESTGetAllOrdersOp,
+    OngoingOrdersRESTGetOrderOp,
     OngoingGenericRemovePiiOp,
     PriceindxDownloadExportPipelineOp,
     PandasReadGenericOp,

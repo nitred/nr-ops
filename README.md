@@ -5,7 +5,7 @@ An opinionated operator framework.
 # Pre-requisites
 
 * `python=3.9`, next milestone will be `python=3.11` in Q1 2024
-* IMPORTANT: Using `poetry==1.4.2` and poetry has been removed from dev dependencies and instead has been installed globally in a separate environment. Some dependency conflicts have been resolved by doing this.
+* IMPORTANT: We are now using `poetry==1.4.2`. `poetry` as a dependency been removed from dev dependencies in the `pyproject.toml` file and instead, it is expected to be installed manually using `pip install poetry==1.4.2` in a separate environment. Some dependency conflicts have been resolved by doing this.
 
 
 # Setup

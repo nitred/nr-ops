@@ -25,6 +25,15 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.18.0 (2023-10-11)
+* **New Ops**
+  * Generators
+    * Added `OngoingOrdersRESTGetAllOrdersOp`
+    * Added `OngoingOrdersRESTGetOrderOp`
+* **Non-breaking Changes**
+  * Renames Ongoing's op filenames to include whether they use REST or SOAP.
+
+
 # Release 0.17.0 (2023-09-27)
 * **New Ops**
   * Generators

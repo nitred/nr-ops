@@ -25,6 +25,12 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.19.0 (2023-10-20)
+* **New Ops**
+  * Generators
+    * Added `GoogleAdsSearchQueryGeneratorOp`
+
+
 # Release 0.18.0 (2023-10-11)
 * **New Ops**
   * Generators

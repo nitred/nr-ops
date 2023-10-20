@@ -144,6 +144,9 @@ from nr_ops.ops.ops.generator_ops.gcp_gcs.is_key_exists import GCPGCSIsKeyExists
 from nr_ops.ops.ops.generator_ops.gcp_gcs.list_keys import GCPGCSListKeysOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports import GetGAReportsOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports_ga4 import GetGAReportsGA4Op
+from nr_ops.ops.ops.generator_ops.google_ads.google_ads_search_query import (
+    GoogleAdsSearchQueryGeneratorOp,
+)
 from nr_ops.ops.ops.generator_ops.list.list_get import ListGetGeneratorOp
 from nr_ops.ops.ops.generator_ops.mailchimp.campaigns_get_campaign_info import (
     MailchimpCampaignsGetCampaignInfoOp,
@@ -280,8 +283,6 @@ OP_CLASSES: List[Type[BaseOp]] = [
     EvalExprOp,
     EvalExprAsMetadataOp,
     EvalExprConditionalOp,
-    GetGAReportsOp,
-    GetGAReportsGA4Op,
     MockGeneratorOp,
     SleepGeneratorOp,
     SkipEmptyInputGeneratorOp,
@@ -334,6 +335,9 @@ OP_CLASSES: List[Type[BaseOp]] = [
     GCPGCSGetKeyOp,
     GCPGCSListKeysOp,
     GCPGCSIsKeyExistsOp,
+    GetGAReportsOp,
+    GetGAReportsGA4Op,
+    GoogleAdsSearchQueryGeneratorOp,
     BatchGeneratorOp,
     SQLQueryGeneratorOp,
     PickleGeneratorOp,

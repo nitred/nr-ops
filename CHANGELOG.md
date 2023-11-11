@@ -25,6 +25,13 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.20.0 (2023-11-11)
+* **New Ops**
+  * Connector Interfaces
+    * Added `GoogleSheetsConnectorOp`
+  * Generators
+    * Added `GoogleSheetsGetCellRangeOp`
+
 # Release 0.19.0 (2023-10-20)
 * **New Ops**
   * Generators

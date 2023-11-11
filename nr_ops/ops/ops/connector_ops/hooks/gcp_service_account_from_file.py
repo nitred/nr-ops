@@ -49,6 +49,9 @@ class GCPServiceAccountFromFileConnOp(BaseConnectorOp):
         self.scopes = scopes
         self.templated_fields = kwargs.get("templated_fields", [])
 
+        # Will be populated by run()
+        self.credentials = None
+
     def run(self) -> OpMsg:
         """.
 

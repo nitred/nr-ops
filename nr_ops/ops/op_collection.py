@@ -36,6 +36,7 @@ from nr_ops.ops.ops.connector_ops.interfaces.google_analytics import (
 from nr_ops.ops.ops.connector_ops.interfaces.google_analytics_ga4 import (
     GoogleAnalyticsGA4ConnOp,
 )
+from nr_ops.ops.ops.connector_ops.interfaces.google_sheets import GoogleSheetsConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.http import HTTPConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.list import ListConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.mysql import MysqlConnOp
@@ -144,6 +145,9 @@ from nr_ops.ops.ops.generator_ops.gcp_gcs.is_key_exists import GCPGCSIsKeyExists
 from nr_ops.ops.ops.generator_ops.gcp_gcs.list_keys import GCPGCSListKeysOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports import GetGAReportsOp
 from nr_ops.ops.ops.generator_ops.google.get_ga_reports_ga4 import GetGAReportsGA4Op
+from nr_ops.ops.ops.generator_ops.google.google_sheets_get_cell_range import (
+    GoogleSheetsGetCellRangeOp,
+)
 from nr_ops.ops.ops.generator_ops.google_ads.google_ads_search_query import (
     GoogleAdsSearchQueryGeneratorOp,
 )
@@ -245,8 +249,6 @@ OP_CLASSES: List[Type[BaseOp]] = [
     PythonCounterHookConnOp,
     PythonQueueHookConnOp,
     # connector_ops (Interfaces)
-    GoogleAnalyticsConnOp,
-    GoogleAnalyticsGA4ConnOp,
     PostgresConnOp,
     MysqlConnOp,
     S3ConnOp,
@@ -258,6 +260,9 @@ OP_CLASSES: List[Type[BaseOp]] = [
     GCPGCSConnOp,
     GCPBigQueryConnOp,
     GoogleAdsConnectorOp,
+    GoogleAnalyticsConnOp,
+    GoogleAnalyticsGA4ConnOp,
+    GoogleSheetsConnOp,
     # consumer_ops
     MockConsumerOp,
     PangresDFToSQLDBOp,
@@ -267,9 +272,9 @@ OP_CLASSES: List[Type[BaseOp]] = [
     GCPBigQueryToGCSOp,
     GCPGCSPutKeyOp,
     GCPGCSDeleteKeyOp,
+    GoogleAdsUploadOfflineConversionOp,
     ShellRunConsumerOp,
     DBTRunConsumerOp,
-    GoogleAdsUploadOfflineConversionOp,
     FilePutConsumerOp,
     ListPutConsumerOp,
     QueuePutConsumerOp,
@@ -338,6 +343,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     GetGAReportsOp,
     GetGAReportsGA4Op,
     GoogleAdsSearchQueryGeneratorOp,
+    GoogleSheetsGetCellRangeOp,
     BatchGeneratorOp,
     SQLQueryGeneratorOp,
     PickleGeneratorOp,

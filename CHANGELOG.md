@@ -25,6 +25,12 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.21.0 (2023-11-17)
+* **Non-breaking Changes**
+  * Updated `GoogleSheetsGetCellRangeOp` op with better logging.
+  * Added new function `custom_raise_exception` to EvalGlobals to be available to Eval Ops.
+
+
 # Release 0.20.0 (2023-11-11)
 * **New Ops**
   * Connector Interfaces

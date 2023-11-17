@@ -9,9 +9,10 @@ import io
 import itertools
 import json
 import logging
-import math as math
+import math
 import pathlib
 import pickle
+import pprint
 import random
 import re
 import shutil
@@ -33,35 +34,40 @@ import sklearn.pipeline
 import sklearn.preprocessing
 import sklearn.svm
 
+from nr_ops.utils.eval.custom_functions import custom_raise_exception
+
 logger = logging.getLogger(__name__)
 
+
 EVAL_GLOBALS = {
-    "random": random,
-    "datetime": datetime,
-    "math": math,
-    "np": np,
-    "pathlib": pathlib,
-    "pd": pd,
-    "pickle": pickle,
-    "uuid": uuid,
-    "partial": partial,
-    "collections": collections,
-    "json": json,
-    "itertools": itertools,
-    "requests": requests,
-    "logger": logger,
-    "time": time,
     "base64": base64,
+    "collections": collections,
     "copy": copy,
+    "datetime": datetime,
     "gzip": gzip,
     "hashlib": hashlib,
     "importlib": importlib,
     "io": io,
+    "itertools": itertools,
+    "json": json,
+    "logging": logging,
+    "math": math,
+    "pathlib": pathlib,
+    "pickle": pickle,
+    "pprint": pprint,
+    "random": random,
     "re": re,
     "shutil": shutil,
     "tarfile": tarfile,
+    "time": time,
+    "uuid": uuid,
     "zipfile": zipfile,
-    # sklearn
+    "partial": partial,
+    # third-party
+    "np": np,
+    "pd": pd,
+    "requests": requests,
+    # third-party: sklearn
     "sklearn": sklearn,
     "sklearn.datasets": sklearn.datasets,
     "sklearn.linear_model": sklearn.linear_model,
@@ -70,4 +76,6 @@ EVAL_GLOBALS = {
     "sklearn.pipeline": sklearn.pipeline,
     "sklearn.preprocessing": sklearn.preprocessing,
     "sklearn.svm": sklearn.svm,
+    # custom_functions
+    "custom_raise_exception": custom_raise_exception,
 }

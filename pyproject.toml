@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nr-ops"
-version = "0.21.0"
+version = "0.22.0.0"
 description = "An opinionated operator framework."
 authors = ["Nitish Reddy Koripalli <nitish.k.reddy@gmail.com>"]
 
@@ -11,7 +11,7 @@ nr-ops = "nr_ops.main:run"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"
-pydantic = "==1.10.4"
+pydantic = "==1.10.13"
 pandas = "==1.5.3"
 "ruamel.yaml" = "==0.17.21"
 

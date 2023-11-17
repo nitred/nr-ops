@@ -25,6 +25,11 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.22.0.0 (2023-11-17)
+* **Breaking Changes**
+  * Upgraded dependency to `pydantic==1.10.13`
+
+
 # Release 0.21.0 (2023-11-17)
 * **Non-breaking Changes**
   * Updated `GoogleSheetsGetCellRangeOp` op with better logging.

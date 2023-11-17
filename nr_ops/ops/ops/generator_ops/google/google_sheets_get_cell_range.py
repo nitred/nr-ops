@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict, Generator, List, Optional
 
 from googleapiclient.discovery import build
-from pydantic import StrictStr, conlist
+from pydantic import StrictBool, StrictInt, StrictStr, conlist
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
@@ -88,8 +88,8 @@ class GoogleSheetsGetCellRangeOp(BaseGeneratorOp):
         range_ = f"{self.sheet_name}!{self.cell_range}"
 
         logger.info(
-            f"GoogleSheetsGetCellRangeOp.run: Fetching cell range: {self.cell_range} "
-            f"from {self.sheet_name=} and {self.spreadsheet_id}. Merged {range_=}"
+            f"GoogleSheetsGetCellRangeOp.run: Fetching cell range from "
+            f"{self.spreadsheet_id=} and merged sheet & range {range_=}."
         )
 
         result = (
@@ -100,13 +100,19 @@ class GoogleSheetsGetCellRangeOp(BaseGeneratorOp):
 
         rows: List[List] = result.get("values", [])
 
+        logger.info(
+            f"GoogleSheetsGetCellRangeOp.run: Done fetching cell range from "
+            f"{self.spreadsheet_id=} and {range_=} (merged sheet & range). "
+            f"n_rows={len(rows)}."
+        )
+
         if not rows:
             logger.info(f"GoogleSheetsGetCellRangeOp.run: No data. {rows=}. Consuming.")
             return
 
         logger.info(
             f"GoogleSheetsGetCellRangeOp.run: Data exists. "
-            f"{len(rows)=}. first_row={rows[0]}. Yielding."
+            f"n_rows={len(rows)}. Yielding."
         )
 
         yield OpMsg(

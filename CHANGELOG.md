@@ -25,6 +25,11 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.23.1.0 (2023-11-20)
+* **Non-breaking Changes**
+  * Added new arg `trigger_accepted_status_codes` for `AirflowDagRunTriggerDagAndWaitUntilCompletionOp` to allow 409 status codes as well.
+
+
 # Release 0.23.0.0 (2023-11-20)
 * **New Ops**
   * Generators

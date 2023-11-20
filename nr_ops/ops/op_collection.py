@@ -75,6 +75,9 @@ from nr_ops.ops.ops.generator_ops.airflow.dagruns.get_dagrun import (
 from nr_ops.ops.ops.generator_ops.airflow.dagruns.trigger_dagrun import (
     AirflowDagRunTriggerDagRunOp,
 )
+from nr_ops.ops.ops.generator_ops.airflow.dagruns.trigger_dagrun_and_wait_until_completion import (
+    AirflowDagRunTriggerDagAndWaitUntilCompletionOp,
+)
 from nr_ops.ops.ops.generator_ops.batch import BatchGeneratorOp
 from nr_ops.ops.ops.generator_ops.bigcom.catalog_get_all_brands import (
     BigComCatalogGetAllBrandsOp,
@@ -285,6 +288,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     AirflowDagRunGetDagRunOp,
     AirflowDagRunClearDagRunOp,
     AirflowDagClearTaskInstancesOp,
+    AirflowDagRunTriggerDagAndWaitUntilCompletionOp,
     EvalExprOp,
     EvalExprAsMetadataOp,
     EvalExprConditionalOp,

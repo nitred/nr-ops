@@ -4,7 +4,7 @@ import time
 from typing import Any, Dict, Generator, List, Literal, Optional, Tuple
 
 import pandas as pd
-from pydantic import StrictBool, StrictStr, conlist, root_validator
+from pydantic import Field, StrictBool, StrictInt, StrictStr, conlist, root_validator
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
@@ -26,6 +26,9 @@ logger = logging.getLogger(__name__)
 
 class AirflowDagRunTriggerDagAndWaitUntilCompletionOpConfigModel(BaseOpConfigModel):
     trigger_dagrun_config: AirflowDagRunTriggerDagRunOpConfigModel
+    trigger_accepted_status_codes: conlist(StrictInt, min_items=1, strict=True) = Field(
+        default_factory=lambda: [200]
+    )
     poll_interval: float
 
     class Config:
@@ -63,11 +66,23 @@ class AirflowDagRunTriggerDagAndWaitUntilCompletionOp(BaseGeneratorOp):
     def __init__(
         self,
         trigger_dagrun_config: Dict[str, Any],
+        trigger_accepted_status_codes: bool,
         poll_interval: float,
         **kwargs,
     ):
-        """."""
+        """.
+
+        Args:
+            trigger_accepted_status_codes (bool): The status codes that are accepted
+                from the trigger dagrun op. If the trigger dagrun op returns a status
+                code that is not in this list, an exception is raised.
+
+                Usually, the trigger dagrun op returns 200 (success). Sometimes it
+                returns 409 (conflict) if the dagrun already exists. In this case, it
+                is still accepted and the dagrun is waited for.
+        """
         self.trigger_dagrun_config = trigger_dagrun_config
+        self.trigger_accepted_status_codes = trigger_accepted_status_codes
         self.poll_interval = poll_interval
 
         self.templated_fields = kwargs.get("templated_fields", [])
@@ -111,9 +126,13 @@ class AirflowDagRunTriggerDagAndWaitUntilCompletionOp(BaseGeneratorOp):
             f"returned {trigger_dagrun_op_msg.data['status_code']=}."
         )
 
-        if trigger_dagrun_op_msg.data["status_code"] != 200:
+        if (
+            trigger_dagrun_op_msg.data["status_code"]
+            not in self.trigger_accepted_status_codes
+        ):
             raise Exception(
-                f"Trigger dagrun did not return 200. "
+                f"Trigger dagrun did not return one of "
+                f"{self.trigger_accepted_status_codes}. "
                 f"{trigger_dagrun_op_msg.data['status_code']=} and "
                 f"{trigger_dagrun_op_msg.data=}"
             )

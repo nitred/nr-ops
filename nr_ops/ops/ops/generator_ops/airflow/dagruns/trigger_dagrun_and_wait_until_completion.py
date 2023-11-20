@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 class AirflowDagRunTriggerDagAndWaitUntilCompletionOpConfigModel(BaseOpConfigModel):
     trigger_dagrun_config: AirflowDagRunTriggerDagRunOpConfigModel
-    trigger_accepted_status_codes: conlist(StrictInt, min_items=1, strict=True) = Field(
+    trigger_accepted_status_codes: conlist(StrictInt, min_items=1) = Field(
         default_factory=lambda: [200]
     )
     poll_interval: float

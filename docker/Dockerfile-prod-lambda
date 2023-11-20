@@ -4,7 +4,7 @@ RUN apt update && \
     apt install sudo vim git net-tools iputils-ping curl wget -y && \
     \
     echo "Installing dependencies for mysqlclient" && \
-    apt install -y python3-dev default-libmysqlclient-dev build-essential && \
+    apt install -y python3-dev default-libmysqlclient-dev build-essential pkg-config && \
     \
     echo "Installing dependencies for awslambdaric" && \
 	  apt install -y g++ make cmake unzip libcurl4-openssl-dev && \

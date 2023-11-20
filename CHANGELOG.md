@@ -25,6 +25,14 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.23.0.0 (2023-11-20)
+* **New Ops**
+  * Generators
+    * Added `AirflowDagRunTriggerDagAndWaitUntilCompletionOp`
+* **Non-breaking Changes**
+  * Added `pkg-config` apt package to docker image (prod and lambda).
+
+
 # Release 0.22.0.0 (2023-11-17)
 * **Breaking Changes**
   * Upgraded dependency to `pydantic==1.10.13`

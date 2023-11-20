@@ -137,6 +137,26 @@ class AirflowDagRunTriggerDagAndWaitUntilCompletionOp(BaseGeneratorOp):
                 f"{trigger_dagrun_op_msg.data=}"
             )
 
+        # Depending on the trigger status code, we need to get the dag_run_id from
+        # different places.
+        if trigger_dagrun_op_msg.data["status_code"] == 200:
+            dag_run_id = trigger_dagrun_op_msg.data["response"]["dag_run_id"]
+        elif trigger_dagrun_op_msg.data["status_code"] == 409:
+            dag_run_id = self.trigger_dagrun_config_model.dag_run_id
+            if not dag_run_id:
+                raise Exception(
+                    f"AirflowDagRunTriggerDagAndWaitUntilCompletionOp: "
+                    f"Since trigger_dagrun_op_msg.data['status_code']==409, the "
+                    f"dag_run_id is not returned in the response object so we have to "
+                    f"get it from the trigger_dagrun_config_model. However, the model "
+                    f"is not guaranteed to have dag_run_id set (i.e. the config "
+                    f"provided to this op does have dag_run_id set). This situation of "
+                    f"the model not containing dag_run_id has just occurred. "
+                    f"You will need to find a workaround for this situation."
+                )
+        else:
+            raise NotImplementedError()
+
         logger.info(
             f"AirflowDagRunTriggerDagAndWaitUntilCompletionOp.run: Initializing "
             f"AirflowDagRunGetDagRunOp."
@@ -145,7 +165,7 @@ class AirflowDagRunTriggerDagAndWaitUntilCompletionOp(BaseGeneratorOp):
         get_dagrun_op = AirflowDagRunGetDagRunOp(
             http_conn_id=self.trigger_dagrun_config_model.http_conn_id,
             dag_id=self.trigger_dagrun_config_model.dag_id,
-            dag_run_id=trigger_dagrun_op_msg.data["response"]["dag_run_id"],
+            dag_run_id=dag_run_id,
             # Accept any status code since status codes are handled within this op.
             accepted_status_codes=None,
         )

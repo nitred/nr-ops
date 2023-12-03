@@ -25,6 +25,15 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.24.0.0 (2023-12-03)
+* **New Ops**
+  * Consumers
+    * Added `BrazeGenericPostJsonDataAsyncOpConfigModel` that can post json data to many endpoints in Braze and can make concurrent requests.
+* **Non-breaking Changes**
+  * Added new function `custom_generate_batches_from_list` to EvalGlobals to be available to Eval Ops.
+  * Added `requests-futures==1.0.1` as a dependency to handle concurrent requests.
+
+
 # Release 0.23.2.0 (2023-11-20)
 * **Non-breaking Changes**
   * bugfix: Extract dag_run_id when trigger status_code is 409 in AirflowDagRunTriggerDagAndWaitUntilCompletionOp.

@@ -43,6 +43,9 @@ from nr_ops.ops.ops.connector_ops.interfaces.mysql import MysqlConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.postgres import PostgresConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.queue import QueueConnOp
 from nr_ops.ops.ops.connector_ops.interfaces.s3 import S3ConnOp
+from nr_ops.ops.ops.consumer_ops.braze.generic_post_json_data_batched_async import (
+    BrazeGenericPostJsonDataAsyncOp,
+)
 from nr_ops.ops.ops.consumer_ops.counter.counter_put import CounterPutConsumerOp
 from nr_ops.ops.ops.consumer_ops.dbt.dbt_run import DBTRunConsumerOp
 from nr_ops.ops.ops.consumer_ops.file.file_put import FilePutConsumerOp
@@ -283,6 +286,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     QueuePutConsumerOp,
     CounterPutConsumerOp,
     NROpsPostgresCreateETLTableConsumerOp,
+    BrazeGenericPostJsonDataAsyncOp,
     # generator_ops
     AirflowDagRunTriggerDagRunOp,
     AirflowDagRunGetDagRunOp,

@@ -34,7 +34,10 @@ import sklearn.pipeline
 import sklearn.preprocessing
 import sklearn.svm
 
-from nr_ops.utils.eval.custom_functions import custom_raise_exception
+from nr_ops.utils.eval.custom_functions import (
+    custom_generate_batches_from_list,
+    custom_raise_exception,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -78,4 +81,5 @@ EVAL_GLOBALS = {
     "sklearn.svm": sklearn.svm,
     # custom_functions
     "custom_raise_exception": custom_raise_exception,
+    "custom_generate_batches_from_list": custom_generate_batches_from_list,
 }

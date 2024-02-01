@@ -25,6 +25,11 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.25.0.0 (2024-02-01)
+* **Non-breaking Changes**
+  * Added zlib to CompressOp and DecompressOp
+
+
 # Release 0.24.0.0 (2023-12-03)
 * **New Ops**
   * Consumers

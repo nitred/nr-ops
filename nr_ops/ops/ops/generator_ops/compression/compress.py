@@ -1,6 +1,7 @@
 import bz2
 import gzip
 import logging
+import zlib
 from typing import Any, Dict, Generator, List, Literal, Optional
 
 import zstandard as zstd
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class CompressOpConfigModel(BaseOpConfigModel):
-    compress_type: Literal["bz2", "gzip", "zstd"]
+    compress_type: Literal["bz2", "gzip", "zlib", "zstd"]
     compress_kwargs: Optional[Dict[StrictStr, Any]] = None
 
     class Config:
@@ -71,6 +72,8 @@ class CompressOp(BaseGeneratorOp):
             compress = bz2.compress
         elif self.compress_type == "gzip":
             compress = gzip.compress
+        elif self.compress_type == "zlib":
+            compress = zlib.compress
         elif self.compress_type == "zstd":
             compress = zstd.compress
         else:

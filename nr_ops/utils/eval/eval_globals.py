@@ -1,4 +1,5 @@
 import base64
+import bz2
 import collections
 import copy
 import datetime
@@ -20,6 +21,7 @@ import tarfile
 import time
 import uuid
 import zipfile
+import zlib
 from functools import partial
 
 import numpy as np
@@ -33,6 +35,7 @@ import sklearn.model_selection
 import sklearn.pipeline
 import sklearn.preprocessing
 import sklearn.svm
+import zstandard as zstd
 
 from nr_ops.utils.eval.custom_functions import (
     custom_generate_batches_from_list,
@@ -44,6 +47,7 @@ logger = logging.getLogger(__name__)
 
 EVAL_GLOBALS = {
     "base64": base64,
+    "bz2": bz2,
     "collections": collections,
     "copy": copy,
     "datetime": datetime,
@@ -65,6 +69,8 @@ EVAL_GLOBALS = {
     "time": time,
     "uuid": uuid,
     "zipfile": zipfile,
+    "zlib": zlib,
+    "zstd": zstd,
     "partial": partial,
     # third-party
     "np": np,

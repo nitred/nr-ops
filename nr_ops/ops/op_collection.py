@@ -139,6 +139,9 @@ from nr_ops.ops.ops.generator_ops.blade.products_view_variation import (
 )
 from nr_ops.ops.ops.generator_ops.compression.compress import CompressOp
 from nr_ops.ops.ops.generator_ops.compression.decompress import DecompressOp
+from nr_ops.ops.ops.generator_ops.compression.decompress_utils.decompress_newline_separated_streams_with_zlib import (
+    DecompressNewlineSeparatedStreamsWithZlibOp,
+)
 from nr_ops.ops.ops.generator_ops.eval_expr.eval_expr import EvalExprOp
 from nr_ops.ops.ops.generator_ops.eval_expr.eval_expr_as_metadata import (
     EvalExprAsMetadataOp,
@@ -303,6 +306,7 @@ OP_CLASSES: List[Type[BaseOp]] = [
     S3GetKeyOp,
     CompressOp,
     DecompressOp,
+    DecompressNewlineSeparatedStreamsWithZlibOp,
     BladeGetTokenOp,
     BladeOrdersListGoodsoutOp,
     BladeOrdersViewGoodsoutOp,

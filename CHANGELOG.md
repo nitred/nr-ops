@@ -25,6 +25,14 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.26.0.0 (2024-02-05)
+* **New Ops**
+  * Generators
+    * Added DecompressNewlineSeparatedStreamsWithZlibOp
+* **Non-breaking Changes**
+  * Added gzip, zlib, zstd and bz2 to EvalGlobals
+
+
 # Release 0.25.0.0 (2024-02-01)
 * **Non-breaking Changes**
   * Added zlib to CompressOp and DecompressOp

@@ -66,7 +66,7 @@ class GoogleAdsSearchQueryGeneratorOp(BaseGeneratorOp):
 
         op_manager = get_global_op_manager()
 
-        self.google_ads_conn: GoogleAdsConnectorOp = op_manager.get_connector(
+        self.google_ads_conn: GoogleAdsCon;nectorOp = op_manager.get_connector(
             op_id=self.google_ads_conn_id
         )
         self.client = self.google_ads_conn.client

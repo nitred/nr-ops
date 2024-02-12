@@ -14,15 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 class GoogleAdsConnectorOpConfigModel(BaseOpConfigModel):
-    api_version: StrictStr = "v13"
+    api_version: StrictStr = "v15"
 
     class Config:
         extra = "forbid"
         arbitrary_types_allowed = False
-
-    # _validate_hook_type_and_config = root_validator(allow_reuse=True)(
-    #     validate_hook_type_and_config
-    # )
 
 
 class GoogleAdsConnectorOpMetadataModel(BaseOpMetadataModel):
@@ -49,7 +45,7 @@ class GoogleAdsConnectorOp(BaseConnectorOp):
 
     templated_fields = None
 
-    def __init__(self, api_version: str = "v13", **kwargs):
+    def __init__(self, api_version: str = "v15", **kwargs):
         self.api_version = api_version
 
         self.templated_fields = kwargs.get("templated_fields", [])

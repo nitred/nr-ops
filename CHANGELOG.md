@@ -25,6 +25,12 @@ We follow semantic versioning.
   * ...
 ```
 
+
+# Release 0.27.0.0 (2024-02-12)
+* **Breaking Changes**
+  * Updated dependency from `google-ads==21.0.0` to `google-ads==23.0.0` for GoogleAdsConnectorOp since `api_version=v13` is deprecated. Now defaulting to `api_version=v15` in GoogleAdsConnectorOp.
+
+
 # Release 0.26.0.0 (2024-02-05)
 * **New Ops**
   * Generators

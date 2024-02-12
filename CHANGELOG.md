@@ -25,6 +25,9 @@ We follow semantic versioning.
   * ...
 ```
 
+# Release 0.27.0.1 (2024-02-12)
+* **Breaking Changes**
+  * bugfix: typo in GoogleAdsSearchQueryGeneratorOp
 
 # Release 0.27.0.0 (2024-02-12)
 * **Breaking Changes**

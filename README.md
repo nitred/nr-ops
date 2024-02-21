@@ -1,6 +1,19 @@
 # About
 
-An opinionated operator framework.
+An opinionated operator & ETL framework.
+
+![python_vs_nr_ops.png](docs%2Fimages%2Fpython_vs_nr_ops.png)
+
+# Quick Start
+
+```
+# Make sure you have python=3.9 installed
+pip install nr-ops
+
+# You can download the configs/mock_config.yaml file from the repo
+nr-ops --config mock_config.yaml
+```
+
 
 # Pre-requisites
 

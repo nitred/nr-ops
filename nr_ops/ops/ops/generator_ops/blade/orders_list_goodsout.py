@@ -1,11 +1,9 @@
-import json
 import logging
-import re
 import time
 from typing import Any, Dict, Generator, List, Literal, Optional, Tuple
 
 import pandas as pd
-from pydantic import BaseModel, StrictStr, conlist, validator
+from pydantic import BaseModel, StrictStr, conlist
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
@@ -111,9 +109,7 @@ class BladeOrdersListGoodsoutOp(BaseGeneratorOp):
 
         op_manager = get_global_op_manager()
 
-        self.http_conn: HTTPConnOp = op_manager.connector.get_connector(
-            op_id=self.http_conn_id
-        )
+        self.http_conn: HTTPConnOp = op_manager.get_connector(op_id=self.http_conn_id)
 
         self.blade_get_token_op: BladeGetTokenOp = op_manager.op.get_op(
             op_id=self.blade_get_token_op_id
@@ -144,7 +140,7 @@ class BladeOrdersListGoodsoutOp(BaseGeneratorOp):
         )
         logger.info(f"BladeOrdersListGoodsoutOp.get_page: Fetching {page=} with {url=}")
 
-        etl_request_start_ts = str(pd.Timestamp.now(tz="UTC"))
+        etl_request_start_ts = pd.Timestamp.now(tz="UTC").isoformat()
         status_code, output_json = self.http_conn.call(
             method="get",
             url=url,
@@ -158,7 +154,7 @@ class BladeOrdersListGoodsoutOp(BaseGeneratorOp):
             accepted_status_codes=self.accepted_status_codes,
             return_type="json",
         )
-        etl_response_end_ts = str(pd.Timestamp.now(tz="UTC"))
+        etl_response_end_ts = pd.Timestamp.now(tz="UTC").isoformat()
 
         etl_metadata_json = {
             "etl_request_start_ts": etl_request_start_ts,

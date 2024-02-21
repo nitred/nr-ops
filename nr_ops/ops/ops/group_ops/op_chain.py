@@ -4,7 +4,6 @@ from typing import Generator, List, Optional
 from pydantic import conlist
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
-from nr_ops.messages.op_depth import BaseOpDepthModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
 from nr_ops.messages.op_msg import OpMsg
 from nr_ops.messages.time_step import TimeStep
@@ -28,7 +27,7 @@ class OpChainGroupOpConfigModel(BaseOpConfigModel):
 
 
 class OpChainGroupOpMetadataModel(BaseOpMetadataModel):
-    pass
+    output_metadata: BaseOpMetadataModel
 
     class Config:
         extra = "forbid"
@@ -36,7 +35,7 @@ class OpChainGroupOpMetadataModel(BaseOpMetadataModel):
 
 
 class OpChainGroupOpAuditModel(BaseOpAuditModel):
-    pass
+    output_audit: BaseOpAuditModel
 
     class Config:
         extra = "forbid"
@@ -56,7 +55,6 @@ class OpChainGroupOp(BaseGroupOp):
 
     @staticmethod
     def get_output_msgs_from_op(
-        depth: BaseOpDepthModel,
         time_step: TimeStep,
         msgs: Generator[Optional[OpMsg], None, None],
         op: Op,
@@ -67,27 +65,33 @@ class OpChainGroupOp(BaseGroupOp):
           single generator.
         """
         for input_msg in msgs:
-            for output_msg in op.run(depth=depth, time_step=time_step, msg=input_msg):
+            for output_msg in op.run(time_step=time_step, msg=input_msg):
                 yield output_msg
 
     def run(
-        self, depth: BaseOpDepthModel, time_step: TimeStep, msg: Optional[OpMsg] = None
+        self, time_step: TimeStep, msg: Optional[OpMsg] = None
     ) -> Generator[Optional[OpMsg], None, None]:
         """."""
         logger.info(f"OpChainGroupOp.run: Running")
         # Convert a single message into a generator of messages.
         # This is just to treat all messages as if they came from a generator.
-        msgs = (_msg for _msg in [msg])
+        msgs = (_msg for _msg in [msg])  # type: Generator[Optional[OpMsg], None, None]
 
         for op in self.ops:
             # Create a chain of generators.
             # Each output generator is the input to the next generator.
-            msgs = self.get_output_msgs_from_op(
-                depth=depth, time_step=time_step, msgs=msgs, op=op
-            )
+            msgs = self.get_output_msgs_from_op(time_step=time_step, msgs=msgs, op=op)
 
         # The final generator is the generator of this op_group.
         final_msgs = msgs
 
-        for output_msg in final_msgs:
-            yield output_msg
+        for output_msg_i, output_msg in enumerate(final_msgs):
+            logger.info(
+                f"OpChainGroupOp.run: Yielding output_msg from op_chain | "
+                f"{output_msg_i=} | {type(output_msg.data)=}"
+            )
+            yield OpMsg(
+                data=output_msg.data,
+                metadata=output_msg.metadata,
+                audit=output_msg.audit,
+            )

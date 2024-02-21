@@ -2,9 +2,9 @@
 https://googleapis.github.io/google-api-python-client/docs/dyn/analyticsreporting_v4.html
 """
 import logging
-from typing import Any, Dict, Generator, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
-from pydantic import BaseModel, StrictStr, conlist, root_validator
+from pydantic import StrictStr, root_validator
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel

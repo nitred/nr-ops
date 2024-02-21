@@ -59,7 +59,7 @@ class SimpleStartOffsetTimeStepOp(BaseTimeStepOp):
         self.start = start
         self.end_offset = end_offset
         self.tz = tz
-        self.metadata = metadata
+        self.metadata = {} if metadata is None else metadata
 
         self.templated_fields = kwargs.get("templated_fields", [])
 
@@ -75,7 +75,10 @@ class SimpleStartOffsetTimeStepOp(BaseTimeStepOp):
         end = pd.Timestamp(self.start, tz=self.tz) + pd.Timedelta(self.end_offset)
 
         time_step = TimeStep(
-            start=self.start, end=end, tz=self.tz, metadata=self.metadata
+            start=self.start,
+            end=end,
+            tz=self.tz,
+            metadata=self.metadata,
         )
 
         logger.info(f"SimpleStartOffsetTimeStepOp.run: {time_step=}")

@@ -1,18 +1,14 @@
 import logging
-import re
-from typing import Any, Dict, Generator, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
-from pydantic import StrictBool, StrictStr, conlist, validator
+from pydantic import StrictBool, StrictStr, validator
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
 from nr_ops.messages.op_msg import OpMsg
 from nr_ops.messages.time_step import TimeStep
-from nr_ops.ops.base import BaseConsumerOp, BaseGeneratorOp, BaseOpConfigModel
+from nr_ops.ops.base import BaseConsumerOp, BaseOpConfigModel
 from nr_ops.ops.op_manager import get_global_op_manager
-from nr_ops.ops.ops.connector_ops.interfaces.google_analytics import (
-    GoogleAnalyticsConnOp,
-)
 from nr_ops.ops.ops.connector_ops.interfaces.s3 import S3ConnOp
 
 logger = logging.getLogger(__name__)
@@ -86,9 +82,7 @@ class S3PutKeyOp(BaseConsumerOp):
 
         op_manager = get_global_op_manager()
 
-        self.s3_conn: S3ConnOp = op_manager.connector.get_connector(
-            op_id=self.s3_conn_id
-        )
+        self.s3_conn: S3ConnOp = op_manager.get_connector(op_id=self.s3_conn_id)
 
     def run(self, time_step: TimeStep, msg: Optional[OpMsg] = None) -> OpMsg:
         """."""
@@ -117,8 +111,8 @@ class S3PutKeyOp(BaseConsumerOp):
         )
 
         logger.info(
-            f"S3PutKeyOp.run: Done uploading to s3 with {self.input_type=} for "
-            f"{self.key=}"
+            f"S3PutKeyOp.run: Uploading object to s3 "
+            f"{self.input_type=} | {type(msg.data)=} | to {self.bucket} | {self.key=}"
         )
 
         return OpMsg(

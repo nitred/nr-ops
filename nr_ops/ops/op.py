@@ -1,10 +1,11 @@
 import logging
+import time
 from collections import Counter
 from typing import Any, Dict, Generator, Optional, Union
 
-from pydantic import BaseModel, StrictStr, root_validator
+import psutil
+from pydantic import BaseModel, StrictBool, StrictStr, root_validator
 
-from nr_ops.messages.op_depth import BaseOpDepthModel
 from nr_ops.messages.op_msg import OpMsg, OpTimeStepMsg
 from nr_ops.messages.time_step import TimeStep
 from nr_ops.ops.base import (
@@ -23,6 +24,8 @@ class OpModel(BaseModel):
     op_docs: Optional[StrictStr] = None
     op_type: StrictStr
     op_config: Dict[StrictStr, Any]
+    store_metadata: StrictBool = True
+    store_data: StrictBool = False
 
     class Config:
         extra = "forbid"
@@ -90,11 +93,15 @@ class Op(object):
         op_config: Dict[str, Any],
         op_id: Optional[str] = None,
         op_docs: Optional[str] = None,
+        store_metadata: bool = True,
+        store_data: bool = False,
     ):
         self.op_id = op_id
         self.op_docs = op_docs
         self.op_type = op_type
         self.op_config = op_config
+        self.store_metadata = store_metadata
+        self.store_data = store_data
 
         from .op_collection import OP_COLLECTION
 
@@ -107,53 +114,97 @@ class Op(object):
 
         # Register the op with the op_manager.
         # Only registers the op if op_id is not None.
-        self.op_manager.op.store_op(op=self)
+        self.op_manager.store_op(op=self)
+
+    def log_time_taken(self, checkpoint: float, _msg_i: int):
+
+        now = time.time()
+        memory_stats = psutil.virtual_memory()
+        memory_used = memory_stats.used / 1024**2
+        memory_used_percent = memory_stats.percent
+        logger.info(
+            f"Op.run: Time taken for "
+            f"{self.op_obj.OP_FAMILY=} | {self.op_type=} | {self.op_id=} | "
+            f"{_msg_i=} | {now - checkpoint:0.3f} seconds | "
+            f"{memory_used=:,.2f} MB | {memory_used_percent=:.2f}%"
+        )
 
     def run(
         self,
-        depth: BaseOpDepthModel,
         time_step: Optional[TimeStep] = None,
         msg: Optional[OpMsg] = None,
     ) -> Generator[Union[OpMsg, OpTimeStepMsg], None, None]:
         """Run the operator."""
-        depth = depth.init_new_depth(op_type=self.op_type, op_id=self.op_id)
+        logger.info("-" * 40)
         logger.info(
             f"Op.run: Running | "
             f"{self.op_obj.OP_FAMILY=} | {self.op_type=} | {self.op_id=}"
         )
 
+        checkpoint = time.time()
+
         if self.op_obj.OP_FAMILY == "group":
             self.op_obj: BaseGroupOp
-            for _msg in self.op_obj.run(depth=depth, time_step=time_step, msg=msg):
+            for _msg_i, _msg in enumerate(
+                self.op_obj.run(time_step=time_step, msg=msg)
+            ):
+                self.log_time_taken(checkpoint=checkpoint, _msg_i=_msg_i)
+                if self.store_metadata:
+                    self.op_manager.store_metadata(op=self, msg=_msg)
+                if self.store_data:
+                    self.op_manager.store_data(op=self, msg=_msg)
                 yield _msg
+                checkpoint = time.time()
 
         elif self.op_obj.OP_FAMILY == "time_step":
             self.op_obj: BaseTimeStepOp
-            for _msg in self.op_obj.run():
+            for _msg_i, _msg in enumerate(self.op_obj.run()):
+                self.log_time_taken(checkpoint=checkpoint, _msg_i=_msg_i)
                 if not isinstance(_msg.data, TimeStep):
                     raise ValueError(
                         f"Expected msg.data to be of class TimeStep for BaseScheduleOp "
                         f"instead received {type(_msg.data)=}."
                     )
+                if self.store_metadata:
+                    self.op_manager.store_metadata(op=self, msg=_msg)
+                if self.store_data:
+                    self.op_manager.store_data(op=self, msg=_msg)
                 yield _msg
+                checkpoint = time.time()
 
         elif self.op_obj.OP_FAMILY == "connector":
             self.op_obj: BaseConnectorOp
             _msg = self.op_obj.run()
-            # Register output data with the op_manager.
-            self.op_manager.connector.store_data(op=self, msg=_msg)
+            self.log_time_taken(checkpoint=checkpoint, _msg_i=0)
+            # ALWAYS STORE DATA FOR CONNECTOR
+            self.op_manager.store_data(op=self, msg=_msg)
+            if self.store_metadata:
+                self.op_manager.store_metadata(op=self, msg=_msg)
             yield _msg
+            checkpoint = time.time()
 
         elif self.op_obj.OP_FAMILY == "generator":
             self.op_obj: BaseGeneratorOp
-            for _msg in self.op_obj.run(time_step=time_step, msg=msg):
+            for _msg_i, _msg in enumerate(
+                self.op_obj.run(time_step=time_step, msg=msg)
+            ):
+                self.log_time_taken(checkpoint=checkpoint, _msg_i=_msg_i)
                 # Register output metadata with the op_manager.
-                self.op_manager.generator.store_metadata(op=self, msg=_msg)
+                if self.store_metadata:
+                    self.op_manager.store_metadata(op=self, msg=_msg)
+                if self.store_data:
+                    self.op_manager.store_data(op=self, msg=_msg)
                 yield _msg
+                checkpoint = time.time()
 
         elif self.op_obj.OP_FAMILY == "consumer":
             self.op_obj: BaseConsumerOp
-            self.op_obj.run(time_step=time_step, msg=msg)
+            _msg = self.op_obj.run(time_step=time_step, msg=msg)
+            self.log_time_taken(checkpoint=checkpoint, _msg_i=0)
+            if self.store_metadata:
+                self.op_manager.store_metadata(op=self, msg=_msg)
+            if self.store_data:
+                self.op_manager.store_data(op=self, msg=_msg)
 
         else:
             raise NotImplementedError()

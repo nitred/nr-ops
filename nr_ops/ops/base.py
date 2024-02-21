@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 import builtins
 import copy
+import json
 import logging
 from typing import Any, Dict, Generator, List, Literal, Optional, Type, Union
 
@@ -11,7 +12,6 @@ import jinja2.meta
 from pydantic import BaseModel, StrictBool, StrictStr, root_validator
 
 from nr_ops.messages.op_audit import BaseOpAuditModel
-from nr_ops.messages.op_depth import BaseOpDepthModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
 from nr_ops.messages.op_msg import OpMsg, OpTimeStepMsg
 from nr_ops.messages.time_step import TimeStep
@@ -33,6 +33,7 @@ class FieldTemplateConfigModel(BaseModel):
     is_secret: StrictBool = False
     is_recursive: StrictBool = False
     recursive_config: Optional[RecursiveTemplateConfigModel] = None
+    apply_json_serialization: StrictBool = False
 
     class Config:
         extra = "forbid"
@@ -321,10 +322,37 @@ class BaseOp(abc.ABC):
                 **EVAL_GLOBALS,
             }
         )
+
         if field_config.is_secret:
             logger.info(f"{log_prefix} Rendered {field=}: rendered_field_value=******")
         else:
             logger.info(f"{log_prefix} Rendered {field=}: {rendered_field_value=}")
+
+        if field_config.apply_json_serialization:
+            logger.info(
+                f"{log_prefix} Rendered {field=}: "
+                f"{field_config.apply_json_serialization=}. "
+                f"Applying json.loads on rendered_field_value."
+            )
+            rendered_field_value = json.loads(rendered_field_value)
+            logger.info(
+                f"{log_prefix} Rendered {field=}: "
+                f"{field_config.apply_json_serialization=}. "
+                f"Done serializing rendered_field_value with json.loads. "
+            )
+
+            # log rendered_field_value again, this time with types
+            if field_config.is_secret:
+                logger.info(
+                    f"{log_prefix} Serialized {field=}: rendered_field_value=****** | "
+                    f"{type(rendered_field_value)=}"
+                )
+            else:
+                logger.info(
+                    f"{log_prefix} Serialized {field=}: {rendered_field_value=} | "
+                    f"{type(rendered_field_value)=}"
+                )
+
         return rendered_field_value
 
     def __render_field_recursive(
@@ -401,7 +429,7 @@ class BaseOp(abc.ABC):
                 log_prefix=log_prefix,
             )
         else:
-            pass
+            return field_value
 
     def render_fields(
         self, time_step: Optional[TimeStep], msg: Optional[OpMsg], log_prefix: str = ""
@@ -484,6 +512,8 @@ class BaseOp(abc.ABC):
         for field, rendered_field_value in rendered_fields.items():
             setattr(self, field, rendered_field_value)
 
+        logger.info(f"{log_prefix} Done rendering all templated_fields")
+
         return rendered_fields
 
 
@@ -510,7 +540,7 @@ class BaseGroupOp(BaseOp, abc.ABC):
 
     @abc.abstractmethod
     def run(
-        self, depth: BaseOpDepthModel, time_step: TimeStep, msg: Optional[OpMsg] = None
+        self, time_step: TimeStep, msg: Optional[OpMsg] = None
     ) -> Generator[Optional[OpMsg], None, None]:
         raise NotImplementedError()
 

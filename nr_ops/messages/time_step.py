@@ -1,8 +1,20 @@
-import json
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import pandas as pd
-from pydantic import BaseModel, StrictStr, conint
+from pydantic import BaseModel, Field, StrictStr, conint
+
+
+class MetadataModel(BaseModel):
+    created_at: StrictStr = Field(
+        default_factory=lambda: pd.Timestamp.now(tz="UTC").isoformat()
+    )
+
+    class Config:
+        # NOTE!!! This is required to allow NEW fields to be added to the model
+        # by the user. This is useful for adding metadata to the model.
+        extra = "allow"
+        # NOTE!!! We don't allow any arbitrary types in the model.
+        arbitrary_types_allowed = False
 
 
 class TimeStep(BaseModel):
@@ -10,7 +22,7 @@ class TimeStep(BaseModel):
     start: pd.Timestamp
     end: pd.Timestamp
     tz: StrictStr
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: MetadataModel = Field(default_factory=MetadataModel)
 
     class Config:
         extra = "forbid"
@@ -24,20 +36,20 @@ class TimeStep(BaseModel):
         return (
             f"TimeStep: "
             f"index={self.index} | "
-            f"start='{str(self.start)}' | "
-            f"end='{str(self.end)}' | "
+            f"start='{self.start.isoformat()}' | "
+            f"end='{self.end.isoformat()}' | "
             f"tz='{self.tz}'"
             # json.dumps also handles None and converts it to "null"
-            f"metadata='{json.dumps(self.metadata)}'"
+            f"metadata='{self.metadata.json()}'"
         )
 
     def to_json_dict(self) -> dict:
         return {
             "index": self.index,
-            "start": str(self.start).replace(" ", "T"),
-            "end": str(self.end).replace(" ", "T"),
+            "start": self.start.isoformat(),
+            "end": self.end.isoformat(),
             "tz": self.tz,
-            "metadata": self.metadata,
+            "metadata": self.metadata.dict(),
         }
 
     @classmethod
@@ -47,5 +59,5 @@ class TimeStep(BaseModel):
             start=pd.Timestamp(0, tz="UTC"),
             end=pd.Timestamp(0, tz="UTC") + pd.Timedelta(days=1),
             tz="UTC",
-            metadata=None,
+            metadata=MetadataModel(),
         )

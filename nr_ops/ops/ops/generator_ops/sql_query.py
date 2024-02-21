@@ -7,7 +7,7 @@ from nr_ops.messages.op_audit import BaseOpAuditModel
 from nr_ops.messages.op_metadata import BaseOpMetadataModel
 from nr_ops.messages.op_msg import OpMsg
 from nr_ops.messages.time_step import TimeStep
-from nr_ops.ops.base import BaseConsumerOp, BaseOpConfigModel
+from nr_ops.ops.base import BaseGeneratorOp, BaseOpConfigModel
 from nr_ops.ops.op_manager import get_global_op_manager
 from nr_ops.ops.ops.connector_ops.interfaces.postgres import PostgresConnOp
 
@@ -40,7 +40,7 @@ class SQLQueryGeneratorOpAuditModel(BaseOpAuditModel):
         arbitrary_types_allowed = False
 
 
-class SQLQueryGeneratorOp(BaseConsumerOp):
+class SQLQueryGeneratorOp(BaseGeneratorOp):
     OP_TYPE = "generator.sql_query"
     OP_CONFIG_MODEL = SQLQueryGeneratorOpConfigModel
     OP_METADATA_MODEL = SQLQueryGeneratorOpMetadataModel
@@ -62,7 +62,7 @@ class SQLQueryGeneratorOp(BaseConsumerOp):
 
         op_manager = get_global_op_manager()
 
-        self.db: Union[PostgresConnOp] = op_manager.connector.get_connector(
+        self.db: Union[PostgresConnOp] = op_manager.get_connector(
             op_id=self.sql_conn_id
         )
 

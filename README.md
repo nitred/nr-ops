@@ -2,7 +2,7 @@
 
 An opinionated operator & ETL framework.
 
-![python_vs_nr_ops.png](docs%2Fimages%2Fpython_vs_nr_ops.png)![img3.png](docs%2Fimages%2Fimg3.png)
+![python_vs_nr_ops.png](docs%2Fimages%2Fpython_vs_nr_ops.png)
 
 # Quick Start
 

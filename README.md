@@ -2,9 +2,13 @@
 
 An opinionated operator & ETL framework.
 
+Documentation is work in progress.
+
 ![python_vs_nr_ops.png](docs%2Fimages%2Fpython_vs_nr_ops.png)
 
 # Quick Start
+
+## Quick Start Local
 
 ```
 # Make sure you have python=3.9 installed
@@ -14,28 +18,48 @@ pip install nr-ops
 nr-ops --config mock_config.yaml
 ```
 
+## Quick Start Docker
 
-# Pre-requisites
+### Using python:3.9 docker image 
+```
+# First clone the repo and cd into it
 
-* `python=3.9`, next milestone will be `python=3.11` in Q1 2024
-* IMPORTANT: We are now using `poetry==1.4.2`. `poetry` as a dependency been removed from dev dependencies in the `pyproject.toml` file and instead, it is expected to be installed manually using `pip install poetry==1.4.2` in a separate environment. Some dependency conflicts have been resolved by doing this.
+docker run -v $(pwd)/configs/mock_config.yaml:/mock_config.yaml python:3.9 /bin/bash -c "pip install nr-ops && nr-ops --config /mock_config.yaml"
+```
+
+### Using python:3.9 docker image explicitly for amd64 architecture
+```
+# First clone the repo and cd into it
+
+docker run --platform linux/arm64 -v $(pwd)/configs/mock_config.yaml:/mock_config.yaml python:3.9 /bin/bash -c "pip install nr-ops && nr-ops --config /mock_config.yaml"
+```
+
+### Using nr-ops docker image
+TODO
 
 
-# Setup
+# Local Development Environment
 
+In order to test nr-ops locally against a local development environment that includes both the nr-ops package as well as infrastructure dependencies like Airflow, minio (S3) etc you can follow the steps below.
+
+* First create a `.env` file by copying the contents of the `.env-template` file and replacing the values of the environment variables with the actual values.
+  * More instructions can be found here: [docs/environment_variables/README.md](docs/environment_variables/README.md)
+* Make sure you have `python=3.9` installed (use environment manager of your choice)
+  * Other python version may work but it's been tested with `python=3.9`
+  * In order to use other versions, you will need to change the line in the `pyproject.toml` file that specifies the python version to use. For example if you'd like to use `python=3.11` then you will need to change the line `python = ">=3.9,<3.10"` to `python = ">=3.11,<3.12"`.
+* Install poetry
+```
+pip install poetry==1.4.2
+```
+* Install nr-ops locally in development mode
+```
+poetry install
+```
 * Run all docker dependencies locally in a new terminal (or as a daemon if you prefer)
-   ```
-   docker-compose --env-file .env -f docker/docker-compose-local.yml up
-   ```
-
-
-# Useful Commands
-
-* Airflow CLI
-    ```
-    airflow config get-value database sql_alchemy_conn
-    airflow config get-value core executor
-    ```
+  * This installs all the necessary dependencies like Airflow, minio (S3) etc
+ ```
+ docker-compose --env-file .env -f docker/docker-compose-local.yml up
+ ```
 
 # Other Important Notes
 

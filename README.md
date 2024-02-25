@@ -68,7 +68,7 @@ docker run -v /path/to/your/config.yaml:/config.yaml nitred/nr-ops:local bash -c
 
 # Local Development Environment
 
-In order to develop and test nr-ops locally against a local development environment that includes both the nr-ops package as well as infrastructure dependencies like Airflow, minio (S3) etc you can follow the steps below.
+In order to develop and test nr-ops locally against a local development environment that includes both the nr-ops package as well as infrastructure dependencies like Airflow, minio (S3) etc, you can follow the steps below.
 
 
 ## Install nr-ops
@@ -100,9 +100,9 @@ nr-ops --help
 
 * First create a `.env` file by copying the contents of the `.env-template` file. The values in the `.env-template` will work fine with the `docker/docker-compose-local  and replacing the values of the environment variables with the actual values. More instructions can be found here: [docs/environment_variables/README.md](docs/environment_variables/README.md). Here's the list of environment variables that are required by the docker-compose-local.yml file to work.
 
-* Make sure you have `python=3.9` installed (use environment manager of your choice)
-  * Other python version may work but it's been tested with `python=3.9`
-  * In order to use other versions, you will need to change the line in the `pyproject.toml` file that specifies the python version to use. For example if you'd like to use `python=3.11` then you will need to change the line `python = ">=3.9,<3.10"` to `python = ">=3.11,<3.12"`.
+* Make sure you have `python3.9` installed (use environment manager of your choice)
+  * Other python version may work but only `python3.9` has been tested
+  * In order to use other versions of python, you will need to change a line in the `pyproject.toml` file that specifies the python version to use. For example if you'd like to use `python=3.11` then you will need to change the line `python = ">=3.9,<3.10"` to `python = ">=3.11,<3.12"`. After making this change, you can follow the steps below.
 * Install poetry
 ```
 pip install poetry==1.4.2
@@ -110,6 +110,10 @@ pip install poetry==1.4.2
 * Install nr-ops locally in development mode
 ```
 poetry install
+```
+* Create a docker network 
+```
+docker network create --driver=bridge --subnet=172.100.100.128/25 nr-ops-network-n
 ```
 * Run all docker dependencies locally in a new terminal (or as a daemon if you prefer)
   * This installs all the necessary dependencies like Airflow, minio (S3) etc

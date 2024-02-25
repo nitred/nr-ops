@@ -13,6 +13,7 @@ Documentation is work in progress.
 * Current supported python versions: `3.9`
   * python versions `3.8`, `3.10` and `3.11` may work but haven't been tested
 * Current poetry version used: `1.4.2`
+* Current docker image version: `nitred/nr-ops:0.27.1.0-dev1`
 
 
 ### Why and how does nr-ops rely on Airflow?
@@ -33,32 +34,41 @@ nr-ops can be used independently of Airflow. At the moment installing nr-ops als
 pip install nr-ops
 
 # You can download the configs/mock_config.yaml file from the repo
-nr-ops --config mock_config.yaml
+nr-ops --config configs/mock_config.yaml
 ```
 
 ## Quick Start Docker
 
-### Using python:3.9 docker image 
+### Use nr-ops docker image from dockerhub
+* Docker images for `linux/amd64` and `linux/arm64` are available on dockerhub. You can find the latest version of the image [here](https://hub.docker.com/r/nitred/nr-ops/tags?page=1&ordering=last_updated). At the moment, only `-dev` tags are available. The `-dev` tags are meant for development and testing purposes. This is because the Dockerfile used to build the image is not optimized for production use and also allows root access. The `-dev` tags will be removed once the image is optimized for production use.
+* Run nr-ops using the docker image using the `mock_config.yaml` (which is already present in the docker image)
 ```
-# First clone the repo and cd into it
-
-docker run -v $(pwd)/configs/mock_config.yaml:/mock_config.yaml python:3.9 /bin/bash -c "pip install nr-ops && nr-ops --config /mock_config.yaml"
+docker --rm run nitred/nr-ops:0.27.1.0-dev1 bash -c "nr-ops --config ~/configs/mock_config.yaml"
 ```
-
-### Using python:3.9 docker image explicitly for arm64 architecture
+* Run nr-ops using the docker image using a custom config file
 ```
-# First clone the repo and cd into it
-
-docker run --platform linux/arm64 -v $(pwd)/configs/mock_config.yaml:/mock_config.yaml python:3.9 /bin/bash -c "pip install nr-ops && nr-ops --config /mock_config.yaml"
+docker --rm run -v /path/to/your/config.yaml:/config.yaml nitred/nr-ops:0.27.1.0-dev1 bash -c "nr-ops --config /config.yaml"
 ```
 
-### Using nr-ops docker image
-TODO
+
+### Build and use nr-ops docker image locally
+* Build docker image locally
+```
+docker build -f docker/Dockerfile-prod -t nitred/nr-ops:local .
+```
+* Run nr-ops using the docker image using the `mock_config.yaml` (which is already present in the docker image)
+```
+docker --rm run nitred/nr-ops:local bash -c "nr-ops --config ~/configs/mock_config.yaml"
+```
+* Run nr-ops using the docker image using a custom config file
+```
+docker --rm run -v /path/to/your/config.yaml:/config.yaml nitred/nr-ops:local bash -c "nr-ops --config /config.yaml"
+```
 
 
 # Local Development Environment
 
-In order to develop and test nr-ops locally against a local development environment that includes both the nr-ops package as well as infrastructure dependencies like Airflow, minio (S3) etc you can follow the steps below.
+In order to develop and test nr-ops locally against a local development environment that includes both the nr-ops package as well as infrastructure dependencies like Airflow, minio (S3) etc, you can follow the steps below.
 
 
 ## Install nr-ops
@@ -90,9 +100,9 @@ nr-ops --help
 
 * First create a `.env` file by copying the contents of the `.env-template` file. The values in the `.env-template` will work fine with the `docker/docker-compose-local  and replacing the values of the environment variables with the actual values. More instructions can be found here: [docs/environment_variables/README.md](docs/environment_variables/README.md). Here's the list of environment variables that are required by the docker-compose-local.yml file to work.
 
-* Make sure you have `python=3.9` installed (use environment manager of your choice)
-  * Other python version may work but it's been tested with `python=3.9`
-  * In order to use other versions, you will need to change the line in the `pyproject.toml` file that specifies the python version to use. For example if you'd like to use `python=3.11` then you will need to change the line `python = ">=3.9,<3.10"` to `python = ">=3.11,<3.12"`.
+* Make sure you have `python3.9` installed (use environment manager of your choice)
+  * Other python version may work but only `python3.9` has been tested
+  * In order to use other versions of python, you will need to change a line in the `pyproject.toml` file that specifies the python version to use. For example if you'd like to use `python=3.11` then you will need to change the line `python = ">=3.9,<3.10"` to `python = ">=3.11,<3.12"`. After making this change, you can follow the steps below.
 * Install poetry
 ```
 pip install poetry==1.4.2
@@ -100,6 +110,10 @@ pip install poetry==1.4.2
 * Install nr-ops locally in development mode
 ```
 poetry install
+```
+* Create a docker network 
+```
+docker network create --driver=bridge --subnet=172.100.100.128/25 nr-ops-network-n
 ```
 * Run all docker dependencies locally in a new terminal (or as a daemon if you prefer)
   * This installs all the necessary dependencies like Airflow, minio (S3) etc

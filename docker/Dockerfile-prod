@@ -26,4 +26,8 @@ COPY ./nr_ops /home/appuser/nr_ops
 
 RUN pip install --no-cache-dir --no-deps .
 
+
+COPY ./configs/mock_config.yaml /home/appuser/configs/mock_config.yaml
+
+
 USER appuser

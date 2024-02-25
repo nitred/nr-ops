@@ -43,11 +43,11 @@ nr-ops --config configs/mock_config.yaml
 * Docker images for `linux/amd64` and `linux/arm64` are available on dockerhub. You can find the latest version of the image [here](https://hub.docker.com/r/nitred/nr-ops/tags?page=1&ordering=last_updated). At the moment, only `-dev` tags are available. The `-dev` tags are meant for development and testing purposes. This is because the Dockerfile used to build the image is not optimized for production use and also allows root access. The `-dev` tags will be removed once the image is optimized for production use.
 * Run nr-ops using the docker image using the `mock_config.yaml` (which is already present in the docker image)
 ```
-docker --rm run nitred/nr-ops:0.27.1.0-dev1 bash -c "nr-ops --config ~/configs/mock_config.yaml"
+docker run --rm nitred/nr-ops:0.27.1.0-dev1 bash -c "nr-ops --config ~/configs/mock_config.yaml"
 ```
 * Run nr-ops using the docker image using a custom config file
 ```
-docker --rm run -v /path/to/your/config.yaml:/config.yaml nitred/nr-ops:0.27.1.0-dev1 bash -c "nr-ops --config /config.yaml"
+docker run --rm -v /path/to/your/config.yaml:/config.yaml nitred/nr-ops:0.27.1.0-dev1 bash -c "nr-ops --config /config.yaml"
 ```
 
 
@@ -58,11 +58,11 @@ docker build -f docker/Dockerfile-prod -t nitred/nr-ops:local .
 ```
 * Run nr-ops using the docker image using the `mock_config.yaml` (which is already present in the docker image)
 ```
-docker --rm run nitred/nr-ops:local bash -c "nr-ops --config ~/configs/mock_config.yaml"
+docker run --rm nitred/nr-ops:local bash -c "nr-ops --config ~/configs/mock_config.yaml"
 ```
 * Run nr-ops using the docker image using a custom config file
 ```
-docker --rm run -v /path/to/your/config.yaml:/config.yaml nitred/nr-ops:local bash -c "nr-ops --config /config.yaml"
+docker run --rm -v /path/to/your/config.yaml:/config.yaml nitred/nr-ops:local bash -c "nr-ops --config /config.yaml"
 ```
 
 

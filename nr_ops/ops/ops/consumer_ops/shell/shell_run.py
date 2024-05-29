@@ -99,9 +99,20 @@ class ShellRunConsumerOp(BaseConsumerOp):
         # https://gist.github.com/JLeClerc/831d400763b7020599d9
         for line in iter(proc.stdout.readline, b""):
             if self.log_stdout:
-                logger.info(
-                    f"ShellRunConsumerOp.run: STDOUT | {line.decode('utf-8').rstrip()}"
-                )
+                try:
+                    logger.info(
+                        f"ShellRunConsumerOp.run: STDOUT | {line.decode('utf-8').rstrip()}"
+                    )
+                # TODO: Be more specific about the exception
+                except Exception as e:
+                    logger.info(
+                        f"ShellRunConsumerOp.run: Error decoding line from STDOUT "
+                        f"using utf-8. Logging raw line instead after "
+                        f"logging exception. \nException:{e}"
+                    )
+                    logger.info(
+                        f"ShellRunConsumerOp.run: STDOUT | RAW | {line}"
+                    )
             else:
                 logger.info(
                     f"ShellRunConsumerOp.run: {self.log_stdout=} | Still running ..."
